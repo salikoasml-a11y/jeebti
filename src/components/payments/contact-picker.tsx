@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Contact } from "@/lib/types";
+import { useTranslation } from "@/hooks/use-translation";
 import { initials } from "@/lib/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ export function ContactPicker({
   contacts: Contact[];
   onSelect: (contact: Contact) => void;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const filtered = contacts.filter(
     (c) =>
@@ -28,7 +30,7 @@ export function ContactPicker({
       <div className="relative">
         <SearchIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search contacts"
+          placeholder={t("payments.contactPicker.search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-8"
@@ -37,7 +39,7 @@ export function ContactPicker({
 
       <div className="grid gap-1.5">
         {filtered.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted-foreground">No contacts found.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">{t("payments.contactPicker.empty")}</p>
         )}
         {filtered.map((contact) => {
           const parts = contact.name.split(" ");
@@ -59,7 +61,7 @@ export function ContactPicker({
                   <p className="truncate text-sm font-medium">{contact.name}</p>
                   {contact.isJeebtiUser && (
                     <Badge variant="secondary" className="shrink-0 text-[10px]">
-                      Jeebti
+                      {t("payments.contactPicker.jeebtiBadge")}
                     </Badge>
                   )}
                 </div>

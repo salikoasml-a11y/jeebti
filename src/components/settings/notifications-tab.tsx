@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useBankingStore } from "@/store/banking-store";
 import { relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 import type { NotificationType } from "@/lib/types";
 
 const typeIcons: Record<NotificationType, typeof Bell> = {
@@ -21,6 +22,7 @@ const typeIcons: Record<NotificationType, typeof Bell> = {
 
 export function NotificationsTab() {
   const { notifications, markNotificationRead, markAllNotificationsRead } = useBankingStore();
+  const { t } = useTranslation();
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -33,35 +35,35 @@ export function NotificationsTab() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Notification preferences</CardTitle>
-          <CardDescription>Choose how you want to be notified</CardDescription>
+          <CardTitle>{t("settings.notifications.preferences.title")}</CardTitle>
+          <CardDescription>{t("settings.notifications.preferences.desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">Email notifications</p>
-              <p className="text-xs text-muted-foreground">Receipts, statements, and account updates</p>
+              <p className="text-sm font-medium">{t("settings.notifications.email.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.notifications.email.desc")}</p>
             </div>
             <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">Push notifications</p>
-              <p className="text-xs text-muted-foreground">Real-time alerts on your device</p>
+              <p className="text-sm font-medium">{t("settings.notifications.push.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.notifications.push.desc")}</p>
             </div>
             <Switch checked={pushNotifications} onCheckedChange={setPushNotifications} />
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">SMS alerts</p>
-              <p className="text-xs text-muted-foreground">Text messages for critical security events</p>
+              <p className="text-sm font-medium">{t("settings.notifications.sms.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.notifications.sms.desc")}</p>
             </div>
             <Switch checked={smsAlerts} onCheckedChange={setSmsAlerts} />
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium">Marketing emails</p>
-              <p className="text-xs text-muted-foreground">Product news, tips, and offers</p>
+              <p className="text-sm font-medium">{t("settings.notifications.marketing.title")}</p>
+              <p className="text-xs text-muted-foreground">{t("settings.notifications.marketing.desc")}</p>
             </div>
             <Switch checked={marketingEmails} onCheckedChange={setMarketingEmails} />
           </div>
@@ -71,16 +73,16 @@ export function NotificationsTab() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <div>
-            <CardTitle>Recent notifications</CardTitle>
-            <CardDescription>Activity from your account</CardDescription>
+            <CardTitle>{t("settings.notifications.recent.title")}</CardTitle>
+            <CardDescription>{t("settings.notifications.recent.desc")}</CardDescription>
           </div>
           <Button variant="outline" size="sm" disabled={!hasUnread} onClick={markAllNotificationsRead}>
-            Mark all as read
+            {t("settings.notifications.markAllRead")}
           </Button>
         </CardHeader>
         <CardContent className="space-y-2">
           {notifications.length === 0 && (
-            <p className="text-sm text-muted-foreground">You have no notifications.</p>
+            <p className="text-sm text-muted-foreground">{t("settings.notifications.empty")}</p>
           )}
           {notifications.map((notification) => {
             const Icon = typeIcons[notification.type];

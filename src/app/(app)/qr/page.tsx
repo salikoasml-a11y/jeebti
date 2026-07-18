@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { useBankingStore } from "@/store/banking-store";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Contact } from "@/lib/types";
 import { formatCurrency, initials } from "@/lib/format";
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CameraIcon, ShareIcon, ArrowLeftIcon, CheckCircle2Icon } from "lucide-react";
 
 function ScanToPay() {
+  const { t } = useTranslation();
   const router = useRouter();
   const contacts = useBankingStore((s) => s.contacts);
   const sendMoney = useBankingStore((s) => s.sendMoney);
@@ -28,7 +30,7 @@ function ScanToPay() {
 
   function simulateScan() {
     if (contacts.length === 0) {
-      toast.error("No contacts available to simulate a scan");
+      toast.error(t("payments.qr.scan.toast.noContacts"));
       return;
     }
     const contact = contacts[Math.floor(Math.random() * contacts.length)];
@@ -50,8 +52,8 @@ function ScanToPay() {
           onClick={reset}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeftIcon className="size-3.5" />
-          Back
+          <ArrowLeftIcon className="size-3.5 rtl:rotate-180" />
+          {t("payments.qr.scan.back")}
         </button>
 
         <div className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-5 text-center">
@@ -63,7 +65,7 @@ function ScanToPay() {
               {scanned.name}
               {scanned.isJeebtiUser && (
                 <Badge variant="secondary" className="text-[10px]">
-                  Jeebti
+                  {t("payments.contactPicker.jeebtiBadge")}
                 </Badge>
               )}
             </p>
@@ -72,7 +74,7 @@ function ScanToPay() {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="scan-amount">Amount</Label>
+          <Label htmlFor="scan-amount">{t("payments.qr.scan.amount")}</Label>
           <Input
             id="scan-amount"
             type="number"
@@ -97,16 +99,21 @@ function ScanToPay() {
                 amount: Number(amount),
                 reference: "QR payment",
               });
-              toast.success(`${formatCurrency(Number(amount))} sent to ${scanned.name}`);
+              toast.success(
+                t("payments.qr.scan.toast.paidSuccess", {
+                  amount: formatCurrency(Number(amount)),
+                  name: scanned.name,
+                })
+              );
               router.push("/dashboard");
             } catch (e) {
-              toast.error(e instanceof Error ? e.message : "Something went wrong");
+              toast.error(e instanceof Error ? e.message : t("payments.qr.scan.toast.error"));
             } finally {
               setSubmitting(false);
             }
           }}
         >
-          {submitting ? "Paying..." : "Confirm and pay"}
+          {submitting ? t("payments.qr.scan.paying") : t("payments.qr.scan.confirmAndPay")}
         </Button>
       </div>
     );
@@ -116,19 +123,19 @@ function ScanToPay() {
     <div className="mx-auto max-w-sm space-y-5">
       <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-border bg-muted/30 py-14 text-center">
         <CameraIcon className="size-10 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">Point your camera at a QR code</p>
+        <p className="text-sm text-muted-foreground">{t("payments.qr.scan.pointCamera")}</p>
       </div>
 
       <Button type="button" className="w-full" onClick={simulateScan}>
-        Simulate scan (demo)
+        {t("payments.qr.scan.simulate")}
       </Button>
 
       <div className="space-y-2">
-        <Label htmlFor="manual-code">Or enter code manually</Label>
+        <Label htmlFor="manual-code">{t("payments.qr.scan.orEnterCode")}</Label>
         <div className="flex gap-2">
           <Input
             id="manual-code"
-            placeholder="Payment code"
+            placeholder={t("payments.qr.scan.codePlaceholder")}
             value={manualCode}
             onChange={(e) => setManualCode(e.target.value)}
           />
@@ -138,7 +145,7 @@ function ScanToPay() {
             disabled={!manualCode.trim()}
             onClick={simulateScan}
           >
-            Use code
+            {t("payments.qr.scan.useCode")}
           </Button>
         </div>
       </div>
@@ -147,12 +154,13 @@ function ScanToPay() {
 }
 
 function MyQr() {
+  const { t } = useTranslation();
   const primaryAccount = useBankingStore((s) => s.primaryAccount);
   const account = primaryAccount();
   const [copied, setCopied] = useState(false);
 
   if (!account) {
-    return <p className="text-center text-sm text-muted-foreground">No account found.</p>;
+    return <p className="text-center text-sm text-muted-foreground">{t("payments.qr.myQr.noAccount")}</p>;
   }
 
   const payload = JSON.stringify({
@@ -179,27 +187,28 @@ function MyQr() {
         onClick={async () => {
           await navigator.clipboard.writeText(payload);
           setCopied(true);
-          toast.success("Payment details copied");
+          toast.success(t("payments.qr.myQr.toast.copied"));
           setTimeout(() => setCopied(false), 1500);
         }}
       >
         {copied ? <CheckCircle2Icon className="size-4" /> : <ShareIcon className="size-4" />}
-        Share
+        {t("payments.qr.myQr.share")}
       </Button>
     </div>
   );
 }
 
 export default function QrPaymentsPage() {
+  const { t } = useTranslation();
   return (
     <div>
-      <PageHeader title="QR Payments" description="Get paid or pay someone instantly with a QR code." />
+      <PageHeader title={t("payments.qr.page.title")} description={t("payments.qr.page.description")} />
 
       <div className="px-4 pb-10 sm:px-6">
         <Tabs defaultValue="my-qr">
           <TabsList>
-            <TabsTrigger value="my-qr">My QR</TabsTrigger>
-            <TabsTrigger value="scan">Scan to Pay</TabsTrigger>
+            <TabsTrigger value="my-qr">{t("payments.qr.tab.myQr")}</TabsTrigger>
+            <TabsTrigger value="scan">{t("payments.qr.tab.scan")}</TabsTrigger>
           </TabsList>
           <TabsContent value="my-qr" className="pt-6">
             <MyQr />

@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { PinInput } from "@/components/auth/pin-input";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -27,6 +28,7 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
   const [submitting, setSubmitting] = useState(false);
   const resetPin = useAuthStore((s) => s.resetPin);
   const router = useRouter();
+  const { t } = useTranslation();
 
   function reset() {
     setIdentifier("");
@@ -38,22 +40,22 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPin.length !== 4 || confirmPin.length !== 4) {
-      toast.error("Le code PIN doit contenir 4 chiffres.");
+      toast.error(t("forgotPin.invalidLength"));
       return;
     }
     if (newPin !== confirmPin) {
-      toast.error("Les codes PIN ne correspondent pas.");
+      toast.error(t("forgotPin.mismatch"));
       return;
     }
     setSubmitting(true);
     try {
       await resetPin(identifier, password, newPin);
-      toast.success("Votre code PIN a été réinitialisé.");
+      toast.success(t("forgotPin.success"));
       setOpen(false);
       reset();
       router.push("/dashboard");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Une erreur est survenue.");
+      toast.error(e instanceof Error ? e.message : t("error.generic"));
     } finally {
       setSubmitting(false);
     }
@@ -70,14 +72,12 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Code PIN oublié ?</DialogTitle>
-          <DialogDescription>
-            Confirmez votre identité avec votre mot de passe pour définir un nouveau code PIN.
-          </DialogDescription>
+          <DialogTitle>{t("forgotPin.title")}</DialogTitle>
+          <DialogDescription>{t("forgotPin.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fp-identifier">Nom d&apos;utilisateur ou numéro de téléphone</Label>
+            <Label htmlFor="fp-identifier">{t("login.identifierLabel")}</Label>
             <Input
               id="fp-identifier"
               value={identifier}
@@ -87,7 +87,7 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fp-password">Mot de passe</Label>
+            <Label htmlFor="fp-password">{t("login.passwordLabel")}</Label>
             <Input
               id="fp-password"
               type="password"
@@ -97,12 +97,12 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Nouveau code PIN</Label>
-            <PinInput value={newPin} onChange={setNewPin} aria-label="Nouveau code PIN" />
+            <Label>{t("forgotPin.newPin")}</Label>
+            <PinInput value={newPin} onChange={setNewPin} aria-label={t("forgotPin.newPin")} />
           </div>
           <div className="space-y-2">
-            <Label>Confirmer le code PIN</Label>
-            <PinInput value={confirmPin} onChange={setConfirmPin} aria-label="Confirmer le code PIN" />
+            <Label>{t("forgotPin.confirmPin")}</Label>
+            <PinInput value={confirmPin} onChange={setConfirmPin} aria-label={t("forgotPin.confirmPin")} />
           </div>
           <DialogFooter>
             <Button
@@ -110,7 +110,7 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
               disabled={submitting}
               className="w-full bg-jeebti-gold text-jeebti-navy hover:bg-jeebti-gold-light"
             >
-              {submitting ? "Validation…" : "Réinitialiser le code PIN"}
+              {submitting ? t("forgotPin.submitting") : t("forgotPin.submit")}
             </Button>
           </DialogFooter>
         </form>

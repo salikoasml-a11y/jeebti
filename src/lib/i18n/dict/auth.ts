@@ -1,0 +1,121 @@
+import type { Namespace } from "@/lib/i18n/types";
+
+export const auth: Namespace = {
+  "login.identifierLabel": {
+    en: "Username or phone number",
+    fr: "Nom d'utilisateur ou numéro de téléphone",
+    ar: "اسم المستخدم أو رقم الهاتف",
+  },
+  "login.pinLabel": { en: "PIN code", fr: "Code PIN", ar: "رمز التعريف الشخصي" },
+  "login.passwordLabel": { en: "Password", fr: "Mot de passe", ar: "كلمة المرور" },
+  "login.switchToPassword": { en: "Password", fr: "Mot de passe", ar: "كلمة المرور" },
+  "login.switchToPin": { en: "PIN code", fr: "Code PIN", ar: "رمز التعريف الشخصي" },
+  "login.forgotPin": { en: "Forgot PIN?", fr: "Code PIN oublié ?", ar: "هل نسيت رمز التعريف الشخصي؟" },
+  "login.submit": { en: "Log in", fr: "Se connecter", ar: "تسجيل الدخول" },
+  "login.submitting": { en: "Logging in…", fr: "Connexion…", ar: "جارٍ تسجيل الدخول…" },
+  "login.newUser": { en: "New user?", fr: "Nouvel utilisateur ?", ar: "مستخدم جديد؟" },
+  "login.signUpNow": { en: "Sign up now", fr: "S'inscrire maintenant", ar: "سجّل الآن" },
+  "login.welcomeBack": { en: "Welcome back,", fr: "Bon retour,", ar: "مرحبًا بعودتك،" },
+  "login.identifierRequired": {
+    en: "Please enter your username or phone number.",
+    fr: "Veuillez indiquer votre nom d'utilisateur ou numéro de téléphone.",
+    ar: "يرجى إدخال اسم المستخدم أو رقم الهاتف.",
+  },
+
+  "forgotPin.title": { en: "Forgot your PIN?", fr: "Code PIN oublié ?", ar: "هل نسيت رمز التعريف الشخصي؟" },
+  "forgotPin.description": {
+    en: "Confirm your identity with your password to set a new PIN.",
+    fr: "Confirmez votre identité avec votre mot de passe pour définir un nouveau code PIN.",
+    ar: "تحقق من هويتك باستخدام كلمة المرور لتعيين رمز تعريف شخصي جديد.",
+  },
+  "forgotPin.newPin": { en: "New PIN", fr: "Nouveau code PIN", ar: "رمز تعريف شخصي جديد" },
+  "forgotPin.confirmPin": { en: "Confirm PIN", fr: "Confirmer le code PIN", ar: "تأكيد رمز التعريف الشخصي" },
+  "forgotPin.submit": { en: "Reset PIN", fr: "Réinitialiser le code PIN", ar: "إعادة تعيين الرمز" },
+  "forgotPin.submitting": { en: "Verifying…", fr: "Validation…", ar: "جارٍ التحقق…" },
+  "forgotPin.success": { en: "Your PIN has been reset.", fr: "Votre code PIN a été réinitialisé.", ar: "تم إعادة تعيين رمزك بنجاح." },
+  "forgotPin.mismatch": { en: "PINs do not match.", fr: "Les codes PIN ne correspondent pas.", ar: "الرمزان غير متطابقين." },
+  "forgotPin.invalidLength": {
+    en: "PIN must be 4 digits.",
+    fr: "Le code PIN doit contenir 4 chiffres.",
+    ar: "يجب أن يتكون الرمز من 4 أرقام.",
+  },
+
+  "signup.heading": { en: "Create your Jeebti account", fr: "Créer un compte Jeebti", ar: "إنشاء حساب Jeebti" },
+  "signup.subheading": {
+    en: "Open your account in just a few minutes.",
+    fr: "Ouvrez votre compte en quelques minutes.",
+    ar: "افتح حسابك في دقائق معدودة.",
+  },
+  "signup.fullName": { en: "Full name", fr: "Nom complet", ar: "الاسم الكامل" },
+  "signup.phone": { en: "Phone number", fr: "Numéro de téléphone", ar: "رقم الهاتف" },
+  "signup.emailOptional": { en: "Email (optional)", fr: "E-mail (optionnel)", ar: "البريد الإلكتروني (اختياري)" },
+  "signup.usernameOptional": { en: "Username (optional)", fr: "Nom d'utilisateur (optionnel)", ar: "اسم المستخدم (اختياري)" },
+  "signup.password": { en: "Password", fr: "Mot de passe", ar: "كلمة المرور" },
+  "signup.confirmPassword": { en: "Confirm password", fr: "Confirmer le mot de passe", ar: "تأكيد كلمة المرور" },
+  "signup.pin": { en: "PIN code (4 digits)", fr: "Code PIN (4 chiffres)", ar: "رمز التعريف الشخصي (4 أرقام)" },
+  "signup.confirmPin": { en: "Confirm PIN", fr: "Confirmer le code PIN", ar: "تأكيد الرمز" },
+  "signup.agreePrefix": { en: "I agree to Jeebti's", fr: "J'accepte les", ar: "أوافق على" },
+  "signup.terms": { en: "Terms of Service", fr: "conditions générales", ar: "شروط الخدمة" },
+  "signup.and": { en: "and", fr: "et la", ar: "و" },
+  "signup.privacy": { en: "Privacy Policy", fr: "politique de confidentialité", ar: "سياسة الخصوصية" },
+  "signup.submit": { en: "Create my account", fr: "Créer mon compte", ar: "إنشاء حسابي" },
+  "signup.submitting": { en: "Creating account…", fr: "Création du compte…", ar: "جارٍ إنشاء الحساب…" },
+  "signup.alreadyHaveAccount": { en: "Already have an account?", fr: "Déjà un compte ?", ar: "هل لديك حساب بالفعل؟" },
+  "signup.logIn": { en: "Log in", fr: "Se connecter", ar: "تسجيل الدخول" },
+  "signup.welcome": { en: "Welcome to Jeebti,", fr: "Bienvenue chez Jeebti,", ar: "مرحبًا بك في Jeebti،" },
+
+  "signup.error.name": { en: "Please enter your full name.", fr: "Veuillez indiquer votre nom complet.", ar: "يرجى إدخال اسمك الكامل." },
+  "signup.error.phone": { en: "Invalid phone number.", fr: "Numéro de téléphone invalide.", ar: "رقم الهاتف غير صالح." },
+  "signup.error.email": { en: "Invalid email address.", fr: "Adresse e-mail invalide.", ar: "البريد الإلكتروني غير صالح." },
+  "signup.error.username": {
+    en: "Username must be 3-20 characters (letters, numbers, _ or .).",
+    fr: "Le nom d'utilisateur doit contenir entre 3 et 20 caractères (lettres, chiffres, _ ou .).",
+    ar: "يجب أن يتكون اسم المستخدم من 3 إلى 20 حرفًا (أحرف، أرقام، _ أو .).",
+  },
+  "signup.error.passwordLength": {
+    en: "Password must be at least 8 characters.",
+    fr: "Le mot de passe doit contenir au moins 8 caractères.",
+    ar: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+  },
+  "signup.error.passwordMatch": {
+    en: "Passwords do not match.",
+    fr: "Les mots de passe ne correspondent pas.",
+    ar: "كلمتا المرور غير متطابقتين.",
+  },
+  "signup.error.pinLength": { en: "PIN must be 4 digits.", fr: "Le code PIN doit contenir 4 chiffres.", ar: "يجب أن يتكون الرمز من 4 أرقام." },
+  "signup.error.pinMatch": { en: "PINs do not match.", fr: "Les codes PIN ne correspondent pas.", ar: "الرمزان غير متطابقين." },
+  "signup.error.terms": {
+    en: "Please accept the Terms of Service.",
+    fr: "Veuillez accepter les conditions générales.",
+    ar: "يرجى الموافقة على شروط الخدمة.",
+  },
+
+  "terms.title": { en: "Terms of Service", fr: "Conditions générales d'utilisation", ar: "شروط الخدمة" },
+  "terms.body1": {
+    en: "By creating a Jeebti account, you agree to use the service in compliance with applicable regulations, to provide accurate information when registering, and to protect the confidentiality of your PIN and password.",
+    fr: "En créant un compte Jeebti, vous acceptez d'utiliser le service de manière conforme à la réglementation en vigueur, de fournir des informations exactes lors de votre inscription, et de protéger la confidentialité de votre code PIN et de votre mot de passe.",
+    ar: "بإنشاء حساب Jeebti، فإنك توافق على استخدام الخدمة بما يتوافق مع الأنظمة المعمول بها، وتقديم معلومات دقيقة عند التسجيل، وحماية سرية رمز التعريف الشخصي وكلمة المرور الخاصة بك.",
+  },
+  "terms.body2": {
+    en: "Jeebti reserves the right to suspend any account showing fraudulent activity or violating these terms. Fees applicable to each service are communicated before any transaction.",
+    fr: "Jeebti se réserve le droit de suspendre tout compte présentant une activité frauduleuse ou une violation de ces conditions. Les frais applicables à chaque service sont communiqués avant toute transaction.",
+    ar: "تحتفظ Jeebti بالحق في تعليق أي حساب يظهر نشاطًا احتياليًا أو ينتهك هذه الشروط. يتم إبلاغك بالرسوم المطبقة على كل خدمة قبل إتمام أي معاملة.",
+  },
+  "terms.body3": {
+    en: "Jeebti operates via a licensed banking partner and is not itself a bank. Deposited funds are protected in accordance with applicable regulations.",
+    fr: "Jeebti opère via un partenaire bancaire agréé et n'est pas elle-même une banque. Les fonds déposés sont protégés conformément à la réglementation applicable.",
+    ar: "تعمل Jeebti من خلال شريك مصرفي مرخّص وهي ليست بنكًا بحد ذاتها. الأموال المودعة محمية وفقًا للأنظمة المعمول بها.",
+  },
+
+  "privacy.title": { en: "Privacy Policy", fr: "Politique de confidentialité", ar: "سياسة الخصوصية" },
+  "privacy.body1": {
+    en: "Your personal data (name, phone, email) is stored encrypted and used only to provide Jeebti's services and prevent fraud. Your password and PIN are hashed and never stored in plain text.",
+    fr: "Vos données personnelles (nom, téléphone, e-mail) sont stockées de manière chiffrée et ne sont utilisées que pour fournir les services Jeebti et prévenir la fraude. Votre mot de passe et votre code PIN sont hachés et ne sont jamais stockés en clair.",
+    ar: "يتم تخزين بياناتك الشخصية (الاسم، الهاتف، البريد الإلكتروني) بشكل مشفّر وتُستخدم فقط لتقديم خدمات Jeebti ومنع الاحتيال. يتم تجزئة كلمة المرور والرمز الخاصين بك ولا يتم تخزينهما مطلقًا كنص عادي.",
+  },
+  "privacy.body2": {
+    en: "We only share your information with third parties when required by law or with your explicit consent. You can request deletion of your account at any time from settings.",
+    fr: "Nous ne partageons vos informations avec des tiers que lorsque la loi l'exige ou avec votre consentement explicite. Vous pouvez demander la suppression de votre compte à tout moment depuis les paramètres.",
+    ar: "لا نشارك معلوماتك مع أطراف ثالثة إلا عند اقتضاء القانون ذلك أو بموافقتك الصريحة. يمكنك طلب حذف حسابك في أي وقت من الإعدادات.",
+  },
+};

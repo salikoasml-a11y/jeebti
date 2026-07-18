@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { Card } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { SnowflakeIcon } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function CardFace({
   card,
@@ -12,7 +13,14 @@ export function CardFace({
   revealedNumber?: string;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const number = revealedNumber ?? `•••• •••• •••• ${card.last4}`;
+  const typeLabel =
+    card.type === "virtual"
+      ? t("cards.face.type.virtual")
+      : card.type === "credit"
+        ? t("cards.face.type.credit")
+        : t("cards.face.type.physical");
 
   return (
     <div
@@ -25,16 +33,16 @@ export function CardFace({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-white/70">{card.label}</p>
-          <p className="mt-1 text-[11px] capitalize text-white/60">{card.type} card</p>
+          <p className="mt-1 text-[11px] capitalize text-white/60">{typeLabel}</p>
         </div>
         {card.status === "frozen" ? (
           <Badge variant="secondary" className="gap-1 bg-white/20 text-white">
             <SnowflakeIcon className="size-3" />
-            Frozen
+            {t("cards.face.frozen")}
           </Badge>
         ) : card.status === "pending" ? (
           <Badge variant="secondary" className="bg-white/20 text-white">
-            Pending
+            {t("cards.face.pending")}
           </Badge>
         ) : null}
       </div>
@@ -43,11 +51,11 @@ export function CardFace({
 
       <div className="mt-4 flex items-end justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-white/60">Card holder</p>
+          <p className="text-[10px] uppercase tracking-wide text-white/60">{t("cards.face.cardHolder")}</p>
           <p className="text-sm font-medium">{card.holderName}</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-white/60">Expires</p>
+          <p className="text-[10px] uppercase tracking-wide text-white/60">{t("cards.face.expires")}</p>
           <p className="text-sm font-medium tabular-nums">{card.expiry}</p>
         </div>
         <div className="text-right">

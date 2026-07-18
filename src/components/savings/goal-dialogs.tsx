@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useBankingStore } from "@/store/banking-store";
+import { useTranslation } from "@/hooks/use-translation";
 import type { SavingsGoal } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import {
@@ -29,13 +30,13 @@ import { cn } from "@/lib/utils";
 export const GOAL_EMOJIS = ["🏠", "✈️", "🚗", "💻", "🎓", "🛡️", "🎁", "💍", "🐶"];
 
 export const GOAL_COLORS = [
-  { value: "bg-emerald-500", label: "Emerald" },
-  { value: "bg-blue-500", label: "Blue" },
-  { value: "bg-purple-500", label: "Purple" },
-  { value: "bg-amber-500", label: "Amber" },
-  { value: "bg-rose-500", label: "Rose" },
-  { value: "bg-cyan-500", label: "Cyan" },
-];
+  { value: "bg-emerald-500", labelKey: "savings.newGoal.color.emerald" },
+  { value: "bg-blue-500", labelKey: "savings.newGoal.color.blue" },
+  { value: "bg-purple-500", labelKey: "savings.newGoal.color.purple" },
+  { value: "bg-amber-500", labelKey: "savings.newGoal.color.amber" },
+  { value: "bg-rose-500", labelKey: "savings.newGoal.color.rose" },
+  { value: "bg-cyan-500", labelKey: "savings.newGoal.color.cyan" },
+] as const;
 
 export function NewGoalDialog({
   open,
@@ -44,12 +45,13 @@ export function NewGoalDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const createGoal = useBankingStore((s) => s.createGoal);
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState(GOAL_EMOJIS[0]);
   const [targetAmount, setTargetAmount] = useState("");
   const [targetDate, setTargetDate] = useState("");
-  const [color, setColor] = useState(GOAL_COLORS[0].value);
+  const [color, setColor] = useState<string>(GOAL_COLORS[0].value);
   const [roundUp, setRoundUp] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -72,23 +74,23 @@ export function NewGoalDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New savings goal</DialogTitle>
-          <DialogDescription>Set a target and start saving towards it.</DialogDescription>
+          <DialogTitle>{t("savings.newGoal.title")}</DialogTitle>
+          <DialogDescription>{t("savings.newGoal.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3">
           <div className="grid gap-2">
-            <Label htmlFor="goal-name">Goal name</Label>
+            <Label htmlFor="goal-name">{t("savings.newGoal.name")}</Label>
             <Input
               id="goal-name"
-              placeholder="e.g. Summer holiday"
+              placeholder={t("savings.newGoal.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label>Emoji</Label>
+            <Label>{t("savings.newGoal.emoji")}</Label>
             <div className="flex flex-wrap gap-2">
               {GOAL_EMOJIS.map((e) => (
                 <button
@@ -108,7 +110,7 @@ export function NewGoalDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-2">
-              <Label htmlFor="goal-amount">Target amount</Label>
+              <Label htmlFor="goal-amount">{t("savings.newGoal.targetAmount")}</Label>
               <Input
                 id="goal-amount"
                 type="number"
@@ -119,13 +121,13 @@ export function NewGoalDialog({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="goal-date">Target date (optional)</Label>
+              <Label htmlFor="goal-date">{t("savings.newGoal.targetDate")}</Label>
               <Input id="goal-date" type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
             </div>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="goal-color">Color</Label>
+            <Label htmlFor="goal-color">{t("savings.newGoal.color")}</Label>
             <Select value={color} onValueChange={setColor}>
               <SelectTrigger id="goal-color" className="w-full">
                 <SelectValue />
@@ -134,7 +136,7 @@ export function NewGoalDialog({
                 {GOAL_COLORS.map((c) => (
                   <SelectItem key={c.value} value={c.value}>
                     <span className={cn("mr-2 inline-block size-2.5 rounded-full", c.value)} />
-                    {c.label}
+                    {t(c.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -143,8 +145,8 @@ export function NewGoalDialog({
 
           <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
             <div>
-              <p className="text-sm">Round-up saving</p>
-              <p className="text-xs text-muted-foreground">Round up card spending into this goal.</p>
+              <p className="text-sm">{t("savings.newGoal.roundUpSaving")}</p>
+              <p className="text-xs text-muted-foreground">{t("savings.newGoal.roundUpDescription")}</p>
             </div>
             <Switch checked={roundUp} onCheckedChange={setRoundUp} />
           </div>
@@ -152,7 +154,7 @@ export function NewGoalDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("action.cancel")}
           </Button>
           <Button
             type="button"
@@ -168,17 +170,17 @@ export function NewGoalDialog({
                   color,
                   roundUpEnabled: roundUp,
                 });
-                toast.success("Savings goal created");
+                toast.success(t("savings.toast.goalCreated"));
                 onOpenChange(false);
                 reset();
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Something went wrong");
+                toast.error(e instanceof Error ? e.message : t("savings.toast.error"));
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {submitting ? "Creating..." : "Create goal"}
+            {submitting ? t("savings.newGoal.creating") : t("savings.newGoal.create")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -195,6 +197,7 @@ export function AddMoneyDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const contributeToGoal = useBankingStore((s) => s.contributeToGoal);
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -209,14 +212,17 @@ export function AddMoneyDialog({
     >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Add money to {goal.name}</DialogTitle>
+          <DialogTitle>{t("savings.addMoney.title", { name: goal.name })}</DialogTitle>
           <DialogDescription>
-            {formatCurrency(goal.currentAmount)} of {formatCurrency(goal.targetAmount)} saved.
+            {t("savings.addMoney.description", {
+              current: formatCurrency(goal.currentAmount),
+              target: formatCurrency(goal.targetAmount),
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2">
-          <Label htmlFor="add-amount">Amount</Label>
+          <Label htmlFor="add-amount">{t("savings.addMoney.amount")}</Label>
           <Input
             id="add-amount"
             type="number"
@@ -229,7 +235,7 @@ export function AddMoneyDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("action.cancel")}
           </Button>
           <Button
             type="button"
@@ -238,17 +244,17 @@ export function AddMoneyDialog({
               setSubmitting(true);
               try {
                 await contributeToGoal(goal.id, Number(amount));
-                toast.success("Money added to goal");
+                toast.success(t("savings.toast.moneyAdded"));
                 onOpenChange(false);
                 setAmount("");
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Something went wrong");
+                toast.error(e instanceof Error ? e.message : t("savings.toast.error"));
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {submitting ? "Adding..." : "Add money"}
+            {submitting ? t("savings.addMoney.adding") : t("savings.goal.addMoney")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -265,6 +271,7 @@ export function WithdrawDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const withdrawFromGoal = useBankingStore((s) => s.withdrawFromGoal);
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -279,12 +286,14 @@ export function WithdrawDialog({
     >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Withdraw from {goal.name}</DialogTitle>
-          <DialogDescription>{formatCurrency(goal.currentAmount)} available in this goal.</DialogDescription>
+          <DialogTitle>{t("savings.withdraw.title", { name: goal.name })}</DialogTitle>
+          <DialogDescription>
+            {t("savings.withdraw.description", { current: formatCurrency(goal.currentAmount) })}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2">
-          <Label htmlFor="withdraw-amount">Amount</Label>
+          <Label htmlFor="withdraw-amount">{t("savings.withdraw.amount")}</Label>
           <Input
             id="withdraw-amount"
             type="number"
@@ -297,7 +306,7 @@ export function WithdrawDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("action.cancel")}
           </Button>
           <Button
             type="button"
@@ -306,17 +315,17 @@ export function WithdrawDialog({
               setSubmitting(true);
               try {
                 await withdrawFromGoal(goal.id, Number(amount));
-                toast.success("Money withdrawn from goal");
+                toast.success(t("savings.toast.moneyWithdrawn"));
                 onOpenChange(false);
                 setAmount("");
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Something went wrong");
+                toast.error(e instanceof Error ? e.message : t("savings.toast.error"));
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {submitting ? "Withdrawing..." : "Withdraw"}
+            {submitting ? t("savings.withdraw.withdrawing") : t("savings.goal.withdraw")}
           </Button>
         </DialogFooter>
       </DialogContent>

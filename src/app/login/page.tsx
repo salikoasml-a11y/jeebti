@@ -11,10 +11,12 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { PinInput } from "@/components/auth/pin-input";
 import { ForgotPinDialog } from "@/components/auth/forgot-pin-dialog";
 import { useAuthStore } from "@/store/auth-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function LoginPage() {
   const router = useRouter();
   const { signInWithPin, signInWithPassword } = useAuthStore();
+  const { t } = useTranslation();
 
   const [mode, setMode] = useState<"pin" | "password">("pin");
   const [identifier, setIdentifier] = useState("");
@@ -22,32 +24,40 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!identifier.trim()) {
-      toast.error("Veuillez indiquer votre nom d'utilisateur ou numéro de téléphone.");
-      return;
-    }
-    if (mode === "pin" && pin.length !== 4) {
-      toast.error("Le code PIN doit contenir 4 chiffres.");
-      return;
-    }
-    if (mode === "password" && password.length < 8) {
-      toast.error("Mot de passe invalide.");
-      return;
-    }
+  const canSubmit =
+    identifier.trim().length > 0 && (mode === "pin" ? pin.length === 4 : password.length >= 8) && !submitting;
 
+  async function attemptLogin(pinOverride?: string) {
+    const pinToUse = pinOverride ?? pin;
+    if (submitting) return;
+    if (!identifier.trim() || (mode === "pin" ? pinToUse.length !== 4 : password.length < 8)) return;
+    toast.dismiss();
     setSubmitting(true);
     try {
       const user =
-        mode === "pin" ? await signInWithPin(identifier, pin) : await signInWithPassword(identifier, password);
-      toast.success(`Bon retour, ${user.firstName} !`);
+        mode === "pin" ? await signInWithPin(identifier, pinToUse) : await signInWithPassword(identifier, password);
+      // The admin console is English-only, so its welcome toast shouldn't
+      // carry whatever language the customer app was last switched to.
+      const welcome = user.role === "admin" ? "Welcome back," : t("login.welcomeBack");
+      toast.success(`${welcome} ${user.firstName}!`);
       router.push(user.role === "admin" ? "/admin" : "/dashboard");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Une erreur est survenue.");
+      toast.error(e instanceof Error ? e.message : t("error.generic"));
       setPin("");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    attemptLogin();
+  }
+
+  function handlePinChange(next: string) {
+    setPin(next);
+    if (next.length === 4 && identifier.trim().length > 0 && !submitting) {
+      setTimeout(() => attemptLogin(next), 150);
     }
   }
 
@@ -55,9 +65,9 @@ export default function LoginPage() {
     <AuthShell
       footer={
         <>
-          Nouvel utilisateur ?{" "}
+          {t("login.newUser")}{" "}
           <Link href="/signup" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
-            S&apos;inscrire maintenant
+            {t("login.signUpNow")}
           </Link>
         </>
       }
@@ -65,7 +75,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="identifier" className="text-sm font-medium text-foreground">
-            Nom d&apos;utilisateur ou numéro de téléphone
+            {t("login.identifierLabel")}
           </Label>
           <div className="flex items-center gap-3 border-b-2 border-jeebti-navy/20 pb-2 focus-within:border-jeebti-gold dark:border-white/20">
             <CircleUserRound className="size-5 shrink-0 text-jeebti-navy/60 dark:text-white/50" />
@@ -85,14 +95,14 @@ export default function LoginPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <Lock className="size-5 shrink-0 text-jeebti-navy/60 dark:text-white/50" />
-              <Label className="text-sm font-medium text-foreground">Code PIN</Label>
+              <Label className="text-sm font-medium text-foreground">{t("login.pinLabel")}</Label>
             </div>
-            <PinInput value={pin} onChange={setPin} className="px-8" />
+            <PinInput value={pin} onChange={handlePinChange} className="px-8" />
           </div>
         ) : (
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              Mot de passe
+              {t("login.passwordLabel")}
             </Label>
             <div className="flex items-center gap-3 border-b-2 border-jeebti-navy/20 pb-2 focus-within:border-jeebti-gold dark:border-white/20">
               <Lock className="size-5 shrink-0 text-jeebti-navy/60 dark:text-white/50" />
@@ -116,7 +126,7 @@ export default function LoginPage() {
             className="flex items-center gap-1.5 font-medium text-jeebti-navy underline underline-offset-2 dark:text-jeebti-gold-light"
           >
             <KeyRound className="size-3.5" />
-            {mode === "pin" ? "Mot de passe" : "Code PIN"}
+            {mode === "pin" ? t("login.switchToPassword") : t("login.switchToPin")}
           </button>
           {mode === "pin" && (
             <ForgotPinDialog
@@ -125,7 +135,7 @@ export default function LoginPage() {
                   type="button"
                   className="font-medium text-jeebti-navy underline underline-offset-2 dark:text-jeebti-gold-light"
                 >
-                  Code PIN oublié ?
+                  {t("login.forgotPin")}
                 </button>
               }
             />
@@ -134,10 +144,10 @@ export default function LoginPage() {
 
         <Button
           type="submit"
-          disabled={submitting}
-          className="h-12 w-full rounded-xl bg-jeebti-gold text-base font-bold text-jeebti-navy shadow-md hover:bg-jeebti-gold-light"
+          disabled={!canSubmit}
+          className="h-12 w-full rounded-xl bg-jeebti-gold text-base font-bold text-jeebti-navy shadow-md hover:bg-jeebti-gold-light disabled:opacity-50"
         >
-          {submitting ? "Connexion…" : "Se connecter"}
+          {submitting ? t("login.submitting") : t("login.submit")}
         </Button>
       </form>
     </AuthShell>

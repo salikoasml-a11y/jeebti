@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useBankingStore } from "@/store/banking-store";
 import { useAuthStore } from "@/store/auth-store";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Card } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 import {
@@ -29,6 +30,7 @@ import { CardFace } from "@/components/cards/card-face";
 import { CopyIcon, EyeIcon, CheckIcon } from "lucide-react";
 
 function CopyField({ label, value }: { label: string; value: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
@@ -43,7 +45,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
         onClick={async () => {
           await navigator.clipboard.writeText(value);
           setCopied(true);
-          toast.success("Copied");
+          toast.success(t("cards.toast.copied"));
           setTimeout(() => setCopied(false), 1500);
         }}
       >
@@ -62,6 +64,7 @@ export function ViewDetailsDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const [revealed, setRevealed] = useState(false);
 
   return (
@@ -74,8 +77,8 @@ export function ViewDetailsDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Card details</DialogTitle>
-          <DialogDescription>Sensitive details are hidden until you reveal them.</DialogDescription>
+          <DialogTitle>{t("cards.details.title")}</DialogTitle>
+          <DialogDescription>{t("cards.details.description")}</DialogDescription>
         </DialogHeader>
 
         <CardFace card={card} revealedNumber={revealed ? card.fullNumber : undefined} />
@@ -83,21 +86,21 @@ export function ViewDetailsDialog({
         {!revealed ? (
           <Button type="button" onClick={() => setRevealed(true)} className="gap-1.5">
             <EyeIcon className="size-4" />
-            Reveal card details
+            {t("cards.details.reveal")}
           </Button>
         ) : (
           <div className="grid gap-2">
-            <CopyField label="Card number" value={card.fullNumber} />
+            <CopyField label={t("cards.details.cardNumber")} value={card.fullNumber} />
             <div className="grid grid-cols-2 gap-2">
-              <CopyField label="Expiry" value={card.expiry} />
-              <CopyField label="CVV" value={card.cvv} />
+              <CopyField label={t("cards.details.expiry")} value={card.expiry} />
+              <CopyField label={t("cards.details.cvv")} value={card.cvv} />
             </div>
           </div>
         )}
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {t("action.close")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -114,6 +117,7 @@ export function SetLimitDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const setCardLimit = useBankingStore((s) => s.setCardLimit);
   const [limit, setLimit] = useState(String(card.spendingLimit));
   const [submitting, setSubmitting] = useState(false);
@@ -122,12 +126,12 @@ export function SetLimitDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Set spending limit</DialogTitle>
-          <DialogDescription>Monthly limit for {card.label}.</DialogDescription>
+          <DialogTitle>{t("cards.setLimit.title")}</DialogTitle>
+          <DialogDescription>{t("cards.setLimit.description", { label: card.label })}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2">
-          <Label htmlFor="limit">Monthly limit</Label>
+          <Label htmlFor="limit">{t("cards.setLimit.monthlyLimit")}</Label>
           <Input
             id="limit"
             type="number"
@@ -149,7 +153,7 @@ export function SetLimitDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("action.cancel")}
           </Button>
           <Button
             type="button"
@@ -158,16 +162,16 @@ export function SetLimitDialog({
               setSubmitting(true);
               try {
                 await setCardLimit(card.id, Number(limit));
-                toast.success("Spending limit updated");
+                toast.success(t("cards.toast.limitUpdated"));
                 onOpenChange(false);
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Something went wrong");
+                toast.error(e instanceof Error ? e.message : t("cards.toast.error"));
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {submitting ? "Saving..." : "Save limit"}
+            {submitting ? t("cards.setLimit.saving") : t("cards.setLimit.save")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -182,6 +186,7 @@ export function CreateVirtualCardDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const createVirtualCard = useBankingStore((s) => s.createVirtualCard);
   const [label, setLabel] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -196,15 +201,15 @@ export function CreateVirtualCardDialog({
     >
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Create virtual card</DialogTitle>
-          <DialogDescription>Instantly issue a new virtual card for online spending.</DialogDescription>
+          <DialogTitle>{t("cards.createVirtual.title")}</DialogTitle>
+          <DialogDescription>{t("cards.createVirtual.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2">
-          <Label htmlFor="vc-label">Card label</Label>
+          <Label htmlFor="vc-label">{t("cards.createVirtual.label")}</Label>
           <Input
             id="vc-label"
-            placeholder="e.g. Subscriptions"
+            placeholder={t("cards.createVirtual.labelPlaceholder")}
             value={label}
             onChange={(e) => setLabel(e.target.value)}
           />
@@ -212,7 +217,7 @@ export function CreateVirtualCardDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("action.cancel")}
           </Button>
           <Button
             type="button"
@@ -221,17 +226,17 @@ export function CreateVirtualCardDialog({
               setSubmitting(true);
               try {
                 await createVirtualCard(label.trim());
-                toast.success("Virtual card created");
+                toast.success(t("cards.toast.virtualCardCreated"));
                 onOpenChange(false);
                 setLabel("");
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Something went wrong");
+                toast.error(e instanceof Error ? e.message : t("cards.toast.error"));
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {submitting ? "Creating..." : "Create card"}
+            {submitting ? t("cards.createVirtual.creating") : t("cards.createVirtual.create")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -246,6 +251,7 @@ export function RequestPhysicalCardDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const requestPhysicalCard = useBankingStore((s) => s.requestPhysicalCard);
   const user = useAuthStore((s) => s.user);
   const [submitting, setSubmitting] = useState(false);
@@ -263,8 +269,8 @@ export function RequestPhysicalCardDialog({
         {!success ? (
           <>
             <DialogHeader>
-              <DialogTitle>Request physical card</DialogTitle>
-              <DialogDescription>Confirm your delivery address below.</DialogDescription>
+              <DialogTitle>{t("cards.requestPhysical.title")}</DialogTitle>
+              <DialogDescription>{t("cards.requestPhysical.description")}</DialogDescription>
             </DialogHeader>
 
             {user && (
@@ -282,7 +288,7 @@ export function RequestPhysicalCardDialog({
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("action.cancel")}
               </Button>
               <Button
                 type="button"
@@ -293,27 +299,25 @@ export function RequestPhysicalCardDialog({
                     await requestPhysicalCard();
                     setSuccess(true);
                   } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Something went wrong");
+                    toast.error(e instanceof Error ? e.message : t("cards.toast.error"));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
               >
-                {submitting ? "Requesting..." : "Confirm address"}
+                {submitting ? t("cards.requestPhysical.requesting") : t("cards.requestPhysical.confirmAddress")}
               </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Card on the way</DialogTitle>
-              <DialogDescription>
-                Your new physical card has been ordered and will arrive by post within 5-7 working days.
-              </DialogDescription>
+              <DialogTitle>{t("cards.requestPhysical.successTitle")}</DialogTitle>
+              <DialogDescription>{t("cards.requestPhysical.successDescription")}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button type="button" onClick={() => onOpenChange(false)}>
-                Done
+                {t("action.done")}
               </Button>
             </DialogFooter>
           </>
@@ -324,12 +328,12 @@ export function RequestPhysicalCardDialog({
 }
 
 const EMPLOYMENT_OPTIONS = [
-  { value: "employed", label: "Employed" },
-  { value: "self-employed", label: "Self-employed" },
-  { value: "student", label: "Student" },
-  { value: "unemployed", label: "Unemployed" },
-  { value: "retired", label: "Retired" },
-];
+  { value: "employed", labelKey: "cards.applyCredit.employment.employed" },
+  { value: "self-employed", labelKey: "cards.applyCredit.employment.selfEmployed" },
+  { value: "student", labelKey: "cards.applyCredit.employment.student" },
+  { value: "unemployed", labelKey: "cards.applyCredit.employment.unemployed" },
+  { value: "retired", labelKey: "cards.applyCredit.employment.retired" },
+] as const;
 
 export function ApplyCreditCardDialog({
   open,
@@ -338,6 +342,7 @@ export function ApplyCreditCardDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const applyForCreditCard = useBankingStore((s) => s.applyForCreditCard);
   const cards = useBankingStore((s) => s.cards);
   const [income, setIncome] = useState("");
@@ -367,35 +372,33 @@ export function ApplyCreditCardDialog({
         {!success ? (
           <>
             <DialogHeader>
-              <DialogTitle>Apply for a credit card</DialogTitle>
-              <DialogDescription>
-                Tell us a bit about your finances so we can review your application.
-              </DialogDescription>
+              <DialogTitle>{t("cards.applyCredit.title")}</DialogTitle>
+              <DialogDescription>{t("cards.applyCredit.description")}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3">
               <div className="grid gap-2">
-                <Label htmlFor="income">Estimated annual income</Label>
+                <Label htmlFor="income">{t("cards.applyCredit.income")}</Label>
                 <Input
                   id="income"
                   type="number"
                   min={0}
-                  placeholder="e.g. 35000"
+                  placeholder={t("cards.applyCredit.incomePlaceholder")}
                   value={income}
                   onChange={(e) => setIncome(e.target.value)}
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="employment">Employment status</Label>
+                <Label htmlFor="employment">{t("cards.applyCredit.employmentStatus")}</Label>
                 <Select value={employment} onValueChange={setEmployment}>
                   <SelectTrigger id="employment" className="w-full">
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t("cards.applyCredit.selectStatus")} />
                   </SelectTrigger>
                   <SelectContent>
                     {EMPLOYMENT_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {t(opt.labelKey)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -408,15 +411,13 @@ export function ApplyCreditCardDialog({
                   onCheckedChange={(c) => setAgreed(c === true)}
                   className="mt-0.5"
                 />
-                <span className="text-muted-foreground">
-                  I agree to the credit card terms and conditions and consent to a credit check.
-                </span>
+                <span className="text-muted-foreground">{t("cards.applyCredit.agree")}</span>
               </label>
             </div>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("action.cancel")}
               </Button>
               <Button
                 type="button"
@@ -427,31 +428,31 @@ export function ApplyCreditCardDialog({
                     await applyForCreditCard();
                     setSuccess(true);
                   } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Something went wrong");
+                    toast.error(e instanceof Error ? e.message : t("cards.toast.error"));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
               >
-                {submitting ? "Submitting..." : "Submit application"}
+                {submitting ? t("cards.applyCredit.submitting") : t("cards.applyCredit.submit")}
               </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Application submitted</DialogTitle>
-              <DialogDescription>
-                Your credit card application is pending review. We&apos;ll notify you once it&apos;s approved.
-              </DialogDescription>
+              <DialogTitle>{t("cards.applyCredit.successTitle")}</DialogTitle>
+              <DialogDescription>{t("cards.applyCredit.successDescription")}</DialogDescription>
             </DialogHeader>
             {newCard && <CardFace card={newCard} />}
             {newCard?.createdAt && (
-              <p className="text-xs text-muted-foreground">Applied on {formatDate(newCard.createdAt)}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("cards.applyCredit.appliedOn", { date: formatDate(newCard.createdAt) })}
+              </p>
             )}
             <DialogFooter>
               <Button type="button" onClick={() => onOpenChange(false)}>
-                Done
+                {t("action.done")}
               </Button>
             </DialogFooter>
           </>

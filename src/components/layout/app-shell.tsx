@@ -22,31 +22,33 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { useBankingStore } from "@/store/banking-store";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/wallet", label: "Wallet", icon: Wallet },
-  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { href: "/cards", label: "Cards", icon: CreditCard },
-  { href: "/savings", label: "Savings", icon: PiggyBank },
-  { href: "/send", label: "Send Money", icon: Send },
-  { href: "/qr", label: "QR Payments", icon: QrCode },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/help", label: "Help Center", icon: HelpCircle },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/wallet", labelKey: "nav.wallet", icon: Wallet },
+  { href: "/transactions", labelKey: "nav.transactions", icon: ArrowLeftRight },
+  { href: "/cards", labelKey: "nav.cards", icon: CreditCard },
+  { href: "/savings", labelKey: "nav.savings", icon: PiggyBank },
+  { href: "/send", labelKey: "nav.send", icon: Send },
+  { href: "/qr", labelKey: "nav.qr", icon: QrCode },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
+  { href: "/help", labelKey: "nav.help", icon: HelpCircle },
 ];
 
 const MOBILE_NAV_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: LayoutDashboard },
-  { href: "/wallet", label: "Wallet", icon: Wallet },
-  { href: "/send", label: "Send", icon: Send },
-  { href: "/cards", label: "Cards", icon: CreditCard },
-  { href: "/profile", label: "Profile", icon: UserIcon },
+  { href: "/dashboard", labelKey: "nav.home", icon: LayoutDashboard },
+  { href: "/wallet", labelKey: "nav.wallet", icon: Wallet },
+  { href: "/send", labelKey: "dashboard.action.send", icon: Send },
+  { href: "/cards", labelKey: "nav.cards", icon: CreditCard },
+  { href: "/profile", labelKey: "nav.profile", icon: UserIcon },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -54,6 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, status, init, signOut } = useAuthStore();
   const { load, notifications } = useBankingStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     init();
@@ -74,7 +77,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-dvh items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="size-10 animate-spin rounded-full border-2 border-jeebti-brand border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Loading Jeebti…</p>
+          <p className="text-sm text-muted-foreground">{t("action.loading")}</p>
         </div>
       </div>
     );
@@ -103,7 +106,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 )}
               >
                 <item.icon className="size-4.5" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -117,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
           >
             <LogOut className="size-4.5" />
-            Sign out
+            {t("nav.signOut")}
           </button>
         </div>
       </aside>
@@ -151,7 +154,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         )}
                       >
                         <item.icon className="size-4.5" />
-                        {item.label}
+                        {t(item.labelKey)}
                       </Link>
                     );
                   })}
@@ -163,11 +166,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="hidden lg:block">
             <p className="text-sm text-muted-foreground">
-              Welcome back, <span className="font-semibold text-foreground">{user.firstName}</span>
+              {t("nav.welcomeBack")} <span className="font-semibold text-foreground">{user.firstName}</span>
             </p>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             <Link href="/settings?tab=security">
               <Button variant="ghost" size="icon" aria-label="Security" className="hidden sm:inline-flex">
@@ -211,7 +215,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <item.icon className={cn("size-5", active && "fill-jeebti-brand/10")} />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}

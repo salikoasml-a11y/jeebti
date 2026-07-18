@@ -6,7 +6,7 @@ import { Send, ArrowDownToLine, Plus, QrCode, Bell, ChevronRight } from "lucide-
 import { useAuthStore } from "@/store/auth-store";
 import { useBankingStore } from "@/store/banking-store";
 import { bankProvider } from "@/lib/banking/client";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import type { TransactionCategory } from "@/lib/types";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -14,18 +14,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TopUpDialog } from "@/components/wallet/topup-dialog";
 import { TransactionRow } from "@/components/transactions/transaction-row";
 import { SpendingDonut } from "@/components/dashboard/spending-donut";
+import { useTranslation } from "@/hooks/use-translation";
 
-function greeting() {
+function greetingKey() {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "dashboard.greeting.morning";
+  if (hour < 18) return "dashboard.greeting.afternoon";
+  return "dashboard.greeting.evening";
 }
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const { loaded, transactions, goals, notifications, primaryAccount } = useBankingStore();
   const account = primaryAccount();
+  const { t, locale } = useTranslation();
 
   const [spend, setSpend] = useState<{ category: TransactionCategory; amount: number }[] | null>(null);
 
@@ -45,14 +47,17 @@ export default function DashboardPage() {
   const recentTransactions = transactions.slice(0, 5);
   const topGoals = goals.slice(0, 3);
   const recentNotifications = notifications.slice(0, 3);
+  const dateLocale = locale === "ar" ? "ar" : locale === "fr" ? "fr-FR" : "en-GB";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 pt-6 sm:px-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          {greeting()}, {user.firstName}
+          {t(greetingKey())}, {user.firstName}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{formatDate(new Date(), { weekday: "long", day: "numeric", month: "long" })}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {new Intl.DateTimeFormat(dateLocale, { weekday: "long", day: "numeric", month: "long" }).format(new Date())}
+        </p>
       </div>
 
       {/* Balance hero */}
@@ -67,7 +72,7 @@ export default function DashboardPage() {
                 {formatCurrency(account.balance, account.currency)}
               </p>
               <p className="mt-1 text-xs text-white/60">
-                Available {formatCurrency(account.availableBalance, account.currency)}
+                {t("dashboard.available")} {formatCurrency(account.availableBalance, account.currency)}
               </p>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -75,13 +80,13 @@ export default function DashboardPage() {
                 <span className="flex size-11 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25">
                   <Send className="size-4.5" />
                 </span>
-                <span className="text-xs font-medium">Send</span>
+                <span className="text-xs font-medium">{t("dashboard.action.send")}</span>
               </Link>
               <Link href="/receive" className="flex flex-col items-center gap-1.5">
                 <span className="flex size-11 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25">
                   <ArrowDownToLine className="size-4.5" />
                 </span>
-                <span className="text-xs font-medium">Receive</span>
+                <span className="text-xs font-medium">{t("dashboard.action.receive")}</span>
               </Link>
               <TopUpDialog
                 trigger={
@@ -89,7 +94,7 @@ export default function DashboardPage() {
                     <span className="flex size-11 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25">
                       <Plus className="size-4.5" />
                     </span>
-                    <span className="text-xs font-medium">Top up</span>
+                    <span className="text-xs font-medium">{t("dashboard.action.topUp")}</span>
                   </button>
                 }
               />
@@ -97,7 +102,7 @@ export default function DashboardPage() {
                 <span className="flex size-11 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25">
                   <QrCode className="size-4.5" />
                 </span>
-                <span className="text-xs font-medium">QR</span>
+                <span className="text-xs font-medium">{t("dashboard.action.qr")}</span>
               </Link>
             </div>
           </CardContent>
@@ -107,7 +112,7 @@ export default function DashboardPage() {
       {/* Spending analytics */}
       <Card>
         <CardHeader>
-          <CardTitle>Spending this month</CardTitle>
+          <CardTitle>{t("dashboard.spending.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           {!loaded || !account || spend === null ? (
@@ -121,10 +126,10 @@ export default function DashboardPage() {
       {/* Savings goals */}
       <Card>
         <CardHeader>
-          <CardTitle>Savings goals</CardTitle>
+          <CardTitle>{t("dashboard.goals.title")}</CardTitle>
           <CardAction>
             <Link href="/savings" className="flex items-center gap-0.5 text-sm font-medium text-jeebti-brand hover:underline">
-              View all <ChevronRight className="size-3.5" />
+              {t("action.viewAll")} <ChevronRight className="size-3.5 rtl:rotate-180" />
             </Link>
           </CardAction>
         </CardHeader>
@@ -135,7 +140,7 @@ export default function DashboardPage() {
               <Skeleton className="h-14 w-full" />
             </>
           ) : topGoals.length === 0 ? (
-            <p className="text-sm text-muted-foreground">You haven&apos;t created any savings goals yet.</p>
+            <p className="text-sm text-muted-foreground">{t("dashboard.goals.empty")}</p>
           ) : (
             topGoals.map((goal) => {
               const pct = Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100));
@@ -161,10 +166,10 @@ export default function DashboardPage() {
       {/* Recent transactions */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent transactions</CardTitle>
+          <CardTitle>{t("dashboard.transactions.title")}</CardTitle>
           <CardAction>
             <Link href="/transactions" className="flex items-center gap-0.5 text-sm font-medium text-jeebti-brand hover:underline">
-              View all <ChevronRight className="size-3.5" />
+              {t("action.viewAll")} <ChevronRight className="size-3.5 rtl:rotate-180" />
             </Link>
           </CardAction>
         </CardHeader>
@@ -176,7 +181,7 @@ export default function DashboardPage() {
               <Skeleton className="h-12 w-full" />
             </div>
           ) : recentTransactions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No transactions yet.</p>
+            <p className="text-sm text-muted-foreground">{t("dashboard.transactions.empty")}</p>
           ) : (
             <div className="space-y-0.5">
               {recentTransactions.map((tx) => (
@@ -192,14 +197,14 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
             <Bell className="size-4" />
-            Notifications
+            {t("dashboard.notifications.title")}
           </CardTitle>
           <CardAction>
             <Link
               href="/settings?tab=notifications"
               className="flex items-center gap-0.5 text-sm font-medium text-jeebti-brand hover:underline"
             >
-              View all <ChevronRight className="size-3.5" />
+              {t("action.viewAll")} <ChevronRight className="size-3.5 rtl:rotate-180" />
             </Link>
           </CardAction>
         </CardHeader>
@@ -207,7 +212,7 @@ export default function DashboardPage() {
           {!loaded ? (
             <Skeleton className="h-14 w-full" />
           ) : recentNotifications.length === 0 ? (
-            <p className="text-sm text-muted-foreground">You&apos;re all caught up.</p>
+            <p className="text-sm text-muted-foreground">{t("dashboard.notifications.empty")}</p>
           ) : (
             recentNotifications.map((n) => (
               <Link

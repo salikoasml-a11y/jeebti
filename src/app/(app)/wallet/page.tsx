@@ -14,11 +14,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TopUpDialog } from "@/components/wallet/topup-dialog";
 import { TransactionRow } from "@/components/transactions/transaction-row";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 function CopyField({ label, value }: { label: string; value: string }) {
+  const { t } = useTranslation();
   const copy = async () => {
     await navigator.clipboard.writeText(value);
-    toast.success("Copied");
+    toast.success(t("action.copied"));
   };
   return (
     <div className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2">
@@ -26,7 +28,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="truncate text-sm font-medium tabular-nums text-foreground">{value}</p>
       </div>
-      <Button variant="ghost" size="icon-sm" onClick={copy} aria-label={`Copy ${label}`}>
+      <Button variant="ghost" size="icon-sm" onClick={copy} aria-label={t("wallet.copyAria", { label })}>
         <Copy className="size-3.5" />
       </Button>
     </div>
@@ -34,6 +36,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
 }
 
 function AccountCard({ account }: { account: Account }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -46,7 +49,7 @@ function AccountCard({ account }: { account: Account }) {
               trigger={
                 <Button size="sm" variant="secondary">
                   <Plus className="size-3.5" />
-                  Top up
+                  {t("wallet.topUp")}
                 </Button>
               }
             />
@@ -59,7 +62,7 @@ function AccountCard({ account }: { account: Account }) {
             {formatCurrency(account.balance, account.currency)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Available {formatCurrency(account.availableBalance, account.currency)}
+            {t("dashboard.available")} {formatCurrency(account.availableBalance, account.currency)}
           </p>
         </div>
 
@@ -68,15 +71,15 @@ function AccountCard({ account }: { account: Account }) {
           onClick={() => setExpanded((v) => !v)}
           className="flex items-center gap-1 text-sm font-medium text-jeebti-brand"
         >
-          Account details
+          {t("wallet.accountDetails")}
           <ChevronDown className={cn("size-4 transition-transform", expanded && "rotate-180")} />
         </button>
 
         {expanded && (
           <div className="grid gap-2 sm:grid-cols-3">
-            <CopyField label="IBAN" value={account.iban} />
-            <CopyField label="Sort code" value={account.sortCode} />
-            <CopyField label="Account number" value={account.accountNumber} />
+            <CopyField label={t("wallet.iban")} value={account.iban} />
+            <CopyField label={t("wallet.sortCode")} value={account.sortCode} />
+            <CopyField label={t("wallet.accountNumber")} value={account.accountNumber} />
           </div>
         )}
       </CardContent>
@@ -85,9 +88,10 @@ function AccountCard({ account }: { account: Account }) {
 }
 
 function BalanceBreakdown({ accounts }: { accounts: Account[] }) {
+  const { t } = useTranslation();
   const total = accounts.reduce((sum, a) => sum + a.balance, 0);
   if (total <= 0) {
-    return <p className="text-sm text-muted-foreground">No balance to show yet.</p>;
+    return <p className="text-sm text-muted-foreground">{t("wallet.noBalance")}</p>;
   }
   const colors: Record<Account["type"], string> = {
     current: "#2a78d6",
@@ -123,12 +127,13 @@ function BalanceBreakdown({ accounts }: { accounts: Account[] }) {
 }
 
 export default function WalletPage() {
+  const { t } = useTranslation();
   const { loaded, accounts, transactions } = useBankingStore();
   const recent = transactions.slice(0, 8);
 
   return (
     <div>
-      <PageHeader title="Wallet" description="Manage your accounts and money." />
+      <PageHeader title={t("wallet.title")} description={t("wallet.description")} />
 
       <div className="mx-auto max-w-3xl space-y-6 px-4 pb-6 sm:px-6">
         {!loaded ? (
@@ -137,7 +142,7 @@ export default function WalletPage() {
             <Skeleton className="h-48 w-full rounded-xl" />
           </>
         ) : accounts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No accounts found.</p>
+          <p className="text-sm text-muted-foreground">{t("wallet.noAccounts")}</p>
         ) : (
           accounts.map((account) => <AccountCard key={account.id} account={account} />)
         )}
@@ -145,7 +150,7 @@ export default function WalletPage() {
         {loaded && accounts.length > 1 && (
           <Card>
             <CardHeader>
-              <CardTitle>Balance breakdown</CardTitle>
+              <CardTitle>{t("wallet.balanceBreakdown.title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <BalanceBreakdown accounts={accounts} />
@@ -155,10 +160,10 @@ export default function WalletPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent activity</CardTitle>
+            <CardTitle>{t("wallet.recentActivity")}</CardTitle>
             <CardAction>
               <Link href="/transactions" className="flex items-center gap-0.5 text-sm font-medium text-jeebti-brand hover:underline">
-                View all <ChevronRight className="size-3.5" />
+                {t("action.viewAll")} <ChevronRight className="size-3.5 rtl:rotate-180" />
               </Link>
             </CardAction>
           </CardHeader>
@@ -170,7 +175,7 @@ export default function WalletPage() {
                 <Skeleton className="h-12 w-full" />
               </div>
             ) : recent.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No transactions yet.</p>
+              <p className="text-sm text-muted-foreground">{t("dashboard.transactions.empty")}</p>
             ) : (
               <div className="space-y-0.5">
                 {recent.map((tx) => (

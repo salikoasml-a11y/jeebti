@@ -148,6 +148,9 @@
   html {
     @apply font-sans;
   }
+  html[lang="ar"] {
+    font-family: var(--font-arabic), var(--font-sans);
+  }
 }
 
 @layer utilities {

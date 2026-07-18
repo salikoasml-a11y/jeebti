@@ -14,30 +14,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "@/hooks/use-translation";
 
 const CATEGORIES = [
-  { value: "account", label: "Account" },
-  { value: "card", label: "Card" },
-  { value: "payment", label: "Payment" },
-  { value: "kyc", label: "Identity verification (KYC)" },
-  { value: "technical", label: "Technical issue" },
-  { value: "other", label: "Other" },
+  { value: "account", labelKey: "help.contact.category.account" },
+  { value: "card", labelKey: "help.contact.category.card" },
+  { value: "payment", labelKey: "help.contact.category.payment" },
+  { value: "kyc", labelKey: "help.contact.category.kyc" },
+  { value: "technical", labelKey: "help.contact.category.technical" },
+  { value: "other", labelKey: "help.contact.category.other" },
 ] as const;
 
 export function ContactSupportCard() {
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState<string>("");
   const [message, setMessage] = useState("");
+  const { t } = useTranslation();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!subject.trim() || !category || !message.trim()) {
-      toast.error("Please fill in all fields");
+      toast.error(t("help.contact.toast.missingFields"));
       return;
     }
 
     const ticketId = `TKT-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    toast.success(`Support ticket submitted — #${ticketId}. We'll respond within 24 hours.`);
+    toast.success(t("help.contact.toast.submitted", { ticketId }));
     setSubject("");
     setCategory("");
     setMessage("");
@@ -46,47 +48,47 @@ export function ContactSupportCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Contact support</CardTitle>
-        <CardDescription>Can&apos;t find your answer? Send us a message</CardDescription>
+        <CardTitle>{t("help.contact.title")}</CardTitle>
+        <CardDescription>{t("help.contact.desc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="subject">Subject</Label>
+            <Label htmlFor="subject">{t("help.contact.field.subject")}</Label>
             <Input
               id="subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="Briefly describe your issue"
+              placeholder={t("help.contact.field.subject.placeholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{t("help.contact.field.category")}</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder="Select a category" />
+                <SelectValue placeholder={t("help.contact.field.category.placeholder")} />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((c) => (
                   <SelectItem key={c.value} value={c.value}>
-                    {c.label}
+                    {t(c.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="message">Message</Label>
+            <Label htmlFor="message">{t("help.contact.field.message")}</Label>
             <Textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Tell us more about what's going on"
+              placeholder={t("help.contact.field.message.placeholder")}
               rows={5}
             />
           </div>
           <Button type="submit" className="w-full">
-            Submit ticket
+            {t("help.contact.submit")}
           </Button>
         </form>
       </CardContent>

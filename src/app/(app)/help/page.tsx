@@ -6,32 +6,35 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { faqCategories, faqItems } from "@/components/help/faq-data";
+import { faqCategoryKeys, faqItems } from "@/components/help/faq-data";
 import { ContactSupportCard } from "@/components/help/contact-support-card";
 import { LiveChatSheet } from "@/components/help/live-chat-sheet";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function HelpPage() {
   const [query, setQuery] = useState("");
+  const { t } = useTranslation();
 
   const filteredByCategory = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = q
       ? faqItems.filter(
-          (item) => item.question.toLowerCase().includes(q) || item.answer.toLowerCase().includes(q)
+          (item) =>
+            t(item.questionKey).toLowerCase().includes(q) || t(item.answerKey).toLowerCase().includes(q)
         )
       : faqItems;
 
-    return faqCategories
-      .map((category) => ({
-        category,
-        items: filtered.filter((item) => item.category === category),
+    return faqCategoryKeys
+      .map((categoryKey) => ({
+        categoryKey,
+        items: filtered.filter((item) => item.categoryKey === categoryKey),
       }))
       .filter((group) => group.items.length > 0);
-  }, [query]);
+  }, [query, t]);
 
   return (
     <div className="pb-24">
-      <PageHeader title="Help Center" description="Find answers or get in touch with our support team" />
+      <PageHeader title={t("help.title")} description={t("help.description")} />
 
       <div className="space-y-6 px-4 sm:px-6">
         <div className="relative">
@@ -39,7 +42,7 @@ export default function HelpPage() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for answers..."
+            placeholder={t("help.search.placeholder")}
             className="pl-9"
           />
         </div>
@@ -49,22 +52,22 @@ export default function HelpPage() {
             {filteredByCategory.length === 0 && (
               <Card>
                 <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                  No results for &ldquo;{query}&rdquo;. Try a different search or contact support below.
+                  {t("help.search.noResults", { query })}
                 </CardContent>
               </Card>
             )}
 
             {filteredByCategory.map((group) => (
-              <Card key={group.category}>
+              <Card key={group.categoryKey}>
                 <CardHeader>
-                  <CardTitle>{group.category}</CardTitle>
+                  <CardTitle>{t(group.categoryKey)}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Accordion type="single" collapsible>
                     {group.items.map((item) => (
                       <AccordionItem key={item.id} value={item.id}>
-                        <AccordionTrigger>{item.question}</AccordionTrigger>
-                        <AccordionContent>{item.answer}</AccordionContent>
+                        <AccordionTrigger>{t(item.questionKey)}</AccordionTrigger>
+                        <AccordionContent>{t(item.answerKey)}</AccordionContent>
                       </AccordionItem>
                     ))}
                   </Accordion>
@@ -77,10 +80,10 @@ export default function HelpPage() {
             <ContactSupportCard />
             <Card>
               <CardHeader>
-                <CardTitle>Need it now?</CardTitle>
+                <CardTitle>{t("help.needItNow.title")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                Use the live chat button in the bottom corner to talk to a support agent in real time.
+                {t("help.needItNow.desc")}
               </CardContent>
             </Card>
           </div>

@@ -22,39 +22,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "@/hooks/use-translation";
 
-const FUNDING_SOURCES = [
-  "Debit card ending 4242",
-  "Debit card ending 7731",
-  "Bank transfer",
-];
+const FUNDING_SOURCE_IDS = ["debit-4242", "debit-7731", "bank-transfer"] as const;
+type FundingSourceId = (typeof FUNDING_SOURCE_IDS)[number];
 
 export function TopUpDialog({ trigger }: { trigger: React.ReactNode }) {
+  const { t } = useTranslation();
   const topUp = useBankingStore((s) => s.topUp);
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
-  const [source, setSource] = useState(FUNDING_SOURCES[0]);
+  const [source, setSource] = useState<FundingSourceId>(FUNDING_SOURCE_IDS[0]);
   const [submitting, setSubmitting] = useState(false);
+
+  const fundingSourceLabel = (id: FundingSourceId) => {
+    switch (id) {
+      case "debit-4242":
+        return t("wallet.topup.source.debitCard", { digits: "4242" });
+      case "debit-7731":
+        return t("wallet.topup.source.debitCard", { digits: "7731" });
+      case "bank-transfer":
+        return t("wallet.topup.source.bankTransfer");
+    }
+  };
 
   const reset = () => {
     setAmount("");
-    setSource(FUNDING_SOURCES[0]);
+    setSource(FUNDING_SOURCE_IDS[0]);
   };
 
   const handleSubmit = async () => {
     const value = Number(amount);
     if (!value || value <= 0) {
-      toast.error("Enter an amount greater than zero");
+      toast.error(t("wallet.topup.errorAmount"));
       return;
     }
     setSubmitting(true);
     try {
-      await topUp(value, source);
-      toast.success(`Topped up £${value.toFixed(2)}`);
+      await topUp(value, fundingSourceLabel(source));
+      toast.success(t("wallet.topup.successToast", { amount: `£${value.toFixed(2)}` }));
       setOpen(false);
       reset();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Top up failed");
+      toast.error(e instanceof Error ? e.message : t("wallet.topup.errorGeneric"));
     } finally {
       setSubmitting(false);
     }
@@ -71,13 +81,13 @@ export function TopUpDialog({ trigger }: { trigger: React.ReactNode }) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Top up</DialogTitle>
-          <DialogDescription>Add money to your current account.</DialogDescription>
+          <DialogTitle>{t("wallet.topup.title")}</DialogTitle>
+          <DialogDescription>{t("wallet.topup.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="topup-amount">Amount</Label>
+            <Label htmlFor="topup-amount">{t("wallet.topup.amountLabel")}</Label>
             <Input
               id="topup-amount"
               type="number"
@@ -90,15 +100,15 @@ export function TopUpDialog({ trigger }: { trigger: React.ReactNode }) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="topup-source">Funding source</Label>
-            <Select value={source} onValueChange={setSource}>
+            <Label htmlFor="topup-source">{t("wallet.topup.fundingSourceLabel")}</Label>
+            <Select value={source} onValueChange={(v) => setSource(v as FundingSourceId)}>
               <SelectTrigger id="topup-source" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {FUNDING_SOURCES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
+                {FUNDING_SOURCE_IDS.map((id) => (
+                  <SelectItem key={id} value={id}>
+                    {fundingSourceLabel(id)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -108,7 +118,7 @@ export function TopUpDialog({ trigger }: { trigger: React.ReactNode }) {
 
         <DialogFooter>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? "Adding money…" : "Top up"}
+            {submitting ? t("wallet.topup.submitting") : t("wallet.topup.title")}
           </Button>
         </DialogFooter>
       </DialogContent>

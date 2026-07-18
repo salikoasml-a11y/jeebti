@@ -17,23 +17,25 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionRow } from "@/components/transactions/transaction-row";
-import { CATEGORY_LABELS } from "@/components/transactions/category-meta";
+import { CATEGORY_LABEL_KEYS } from "@/components/transactions/category-meta";
+import { useTranslation } from "@/hooks/use-translation";
 
 type DateRange = "all" | "week" | "month";
 type StatusFilter = "all" | TransactionStatus;
 type CategoryFilter = "all" | TransactionCategory;
 
-function dateGroupLabel(date: string) {
+function dateGroupKey(date: string): "today" | "yesterday" | string {
   const d = new Date(date);
   const now = new Date();
   const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
   const diffDays = Math.round((startOfDay(now).getTime() - startOfDay(d).getTime()) / 86400000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "yesterday";
   return formatDate(d, { day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   const { loaded, transactions } = useBankingStore();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("all");
@@ -60,17 +62,23 @@ export default function TransactionsPage() {
   const groups = useMemo(() => {
     const map = new Map<string, Transaction[]>();
     for (const tx of filtered) {
-      const label = dateGroupLabel(tx.date);
-      const list = map.get(label);
+      const key = dateGroupKey(tx.date);
+      const list = map.get(key);
       if (list) list.push(tx);
-      else map.set(label, [tx]);
+      else map.set(key, [tx]);
     }
     return Array.from(map.entries());
   }, [filtered]);
 
+  const groupLabel = (key: string) => {
+    if (key === "today") return t("transactions.dateGroup.today");
+    if (key === "yesterday") return t("transactions.dateGroup.yesterday");
+    return key;
+  };
+
   return (
     <div>
-      <PageHeader title="Transactions" description="Search and filter your full transaction history." />
+      <PageHeader title={t("transactions.title")} description={t("transactions.description")} />
 
       <div className="mx-auto max-w-3xl space-y-4 px-4 pb-8 sm:px-6">
         <div className="space-y-3">
@@ -79,7 +87,7 @@ export default function TransactionsPage() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by merchant or description"
+              placeholder={t("transactions.searchPlaceholder")}
               className="h-9 pl-8"
             />
           </div>
@@ -87,22 +95,22 @@ export default function TransactionsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <Tabs value={range} onValueChange={(v) => setRange(v as DateRange)}>
               <TabsList>
-                <TabsTrigger value="all">All time</TabsTrigger>
-                <TabsTrigger value="week">This week</TabsTrigger>
-                <TabsTrigger value="month">This month</TabsTrigger>
+                <TabsTrigger value="all">{t("transactions.range.all")}</TabsTrigger>
+                <TabsTrigger value="week">{t("transactions.range.week")}</TabsTrigger>
+                <TabsTrigger value="month">{t("transactions.range.month")}</TabsTrigger>
               </TabsList>
             </Tabs>
 
             <div className="flex gap-2">
               <Select value={category} onValueChange={(v) => setCategory(v as CategoryFilter)}>
                 <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder={t("transactions.filter.categoryPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {(Object.keys(CATEGORY_LABELS) as TransactionCategory[]).map((c) => (
+                  <SelectItem value="all">{t("transactions.filter.allCategories")}</SelectItem>
+                  {(Object.keys(CATEGORY_LABEL_KEYS) as TransactionCategory[]).map((c) => (
                     <SelectItem key={c} value={c}>
-                      {CATEGORY_LABELS[c]}
+                      {t(CATEGORY_LABEL_KEYS[c])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -110,14 +118,14 @@ export default function TransactionsPage() {
 
               <Select value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
                 <SelectTrigger className="w-full sm:w-36">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("transactions.filter.statusPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                  <SelectItem value="reversed">Reversed</SelectItem>
+                  <SelectItem value="all">{t("transactions.filter.allStatuses")}</SelectItem>
+                  <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                  <SelectItem value="pending">{t("status.pending")}</SelectItem>
+                  <SelectItem value="failed">{t("status.failed")}</SelectItem>
+                  <SelectItem value="reversed">{t("status.reversed")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -133,15 +141,15 @@ export default function TransactionsPage() {
           </div>
         ) : groups.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm font-medium text-foreground">No transactions found</p>
-            <p className="text-xs text-muted-foreground">Try adjusting your search or filters.</p>
+            <p className="text-sm font-medium text-foreground">{t("transactions.empty.title")}</p>
+            <p className="text-xs text-muted-foreground">{t("transactions.empty.description")}</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {groups.map(([label, txs]) => (
-              <div key={label}>
+            {groups.map(([key, txs]) => (
+              <div key={key}>
                 <h2 className="sticky top-16 z-10 -mx-1 bg-background/95 px-1 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase backdrop-blur-sm">
-                  {label}
+                  {groupLabel(key)}
                 </h2>
                 <div className="space-y-0.5">
                   {txs.map((tx) => (

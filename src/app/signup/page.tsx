@@ -18,6 +18,7 @@ import {
 import { AuthShell } from "@/components/auth/auth-shell";
 import { PinInput } from "@/components/auth/pin-input";
 import { useAuthStore } from "@/store/auth-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 const PHONE_PATTERN = /^\+?[0-9]{7,15}$/;
 
@@ -39,6 +40,7 @@ function FieldRow({
 export default function SignupPage() {
   const router = useRouter();
   const signUp = useAuthStore((s) => s.signUp);
+  const { t } = useTranslation();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -52,16 +54,15 @@ export default function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
 
   function validate(): string | null {
-    if (fullName.trim().length < 2) return "Veuillez indiquer votre nom complet.";
-    if (!PHONE_PATTERN.test(phone.trim())) return "Numéro de téléphone invalide.";
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Adresse e-mail invalide.";
-    if (username.trim() && !/^[a-zA-Z0-9_.]{3,20}$/.test(username.trim()))
-      return "Le nom d'utilisateur doit contenir entre 3 et 20 caractères (lettres, chiffres, _ ou .).";
-    if (password.length < 8) return "Le mot de passe doit contenir au moins 8 caractères.";
-    if (password !== confirmPassword) return "Les mots de passe ne correspondent pas.";
-    if (pin.length !== 4) return "Le code PIN doit contenir 4 chiffres.";
-    if (pin !== confirmPin) return "Les codes PIN ne correspondent pas.";
-    if (!agreed) return "Veuillez accepter les conditions générales.";
+    if (fullName.trim().length < 2) return t("signup.error.name");
+    if (!PHONE_PATTERN.test(phone.trim())) return t("signup.error.phone");
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return t("signup.error.email");
+    if (username.trim() && !/^[a-zA-Z0-9_.]{3,20}$/.test(username.trim())) return t("signup.error.username");
+    if (password.length < 8) return t("signup.error.passwordLength");
+    if (password !== confirmPassword) return t("signup.error.passwordMatch");
+    if (pin.length !== 4) return t("signup.error.pinLength");
+    if (pin !== confirmPin) return t("signup.error.pinMatch");
+    if (!agreed) return t("signup.error.terms");
     return null;
   }
 
@@ -83,10 +84,10 @@ export default function SignupPage() {
         password,
         pin,
       });
-      toast.success(`Bienvenue chez Jeebti, ${user.firstName} !`);
+      toast.success(`${t("signup.welcome")} ${user.firstName}!`);
       router.push("/dashboard");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Une erreur est survenue.");
+      toast.error(e instanceof Error ? e.message : t("error.generic"));
     } finally {
       setSubmitting(false);
     }
@@ -96,21 +97,21 @@ export default function SignupPage() {
     <AuthShell
       footer={
         <>
-          Déjà un compte ?{" "}
+          {t("signup.alreadyHaveAccount")}{" "}
           <Link href="/login" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
-            Se connecter
+            {t("signup.logIn")}
           </Link>
         </>
       }
     >
       <div className="mb-6 text-center">
-        <h1 className="text-xl font-bold text-foreground">Créer un compte Jeebti</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Ouvrez votre compte en quelques minutes.</p>
+        <h1 className="text-xl font-bold text-foreground">{t("signup.heading")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("signup.subheading")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="fullName">Nom complet</Label>
+          <Label htmlFor="fullName">{t("signup.fullName")}</Label>
           <FieldRow icon={User}>
             <input
               id="fullName"
@@ -125,7 +126,7 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Numéro de téléphone</Label>
+          <Label htmlFor="phone">{t("signup.phone")}</Label>
           <FieldRow icon={Phone}>
             <input
               id="phone"
@@ -141,7 +142,7 @@ export default function SignupPage() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail (optionnel)</Label>
+            <Label htmlFor="email">{t("signup.emailOptional")}</Label>
             <FieldRow icon={Mail}>
               <input
                 id="email"
@@ -154,7 +155,7 @@ export default function SignupPage() {
             </FieldRow>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">Nom d&apos;utilisateur (optionnel)</Label>
+            <Label htmlFor="username">{t("signup.usernameOptional")}</Label>
             <FieldRow icon={AtSign}>
               <input
                 id="username"
@@ -169,7 +170,7 @@ export default function SignupPage() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
+            <Label htmlFor="password">{t("signup.password")}</Label>
             <FieldRow icon={Lock}>
               <input
                 id="password"
@@ -183,7 +184,7 @@ export default function SignupPage() {
             </FieldRow>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+            <Label htmlFor="confirmPassword">{t("signup.confirmPassword")}</Label>
             <FieldRow icon={Lock}>
               <input
                 id="confirmPassword"
@@ -200,22 +201,19 @@ export default function SignupPage() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Code PIN (4 chiffres)</Label>
-            <PinInput value={pin} onChange={setPin} aria-label="Code PIN" />
+            <Label>{t("signup.pin")}</Label>
+            <PinInput value={pin} onChange={setPin} aria-label={t("signup.pin")} />
           </div>
           <div className="space-y-2">
-            <Label>Confirmer le code PIN</Label>
-            <PinInput value={confirmPin} onChange={setConfirmPin} aria-label="Confirmer le code PIN" />
+            <Label>{t("signup.confirmPin")}</Label>
+            <PinInput value={confirmPin} onChange={setConfirmPin} aria-label={t("signup.confirmPin")} />
           </div>
         </div>
 
         <div className="flex items-start gap-2.5">
           <Checkbox id="agree" checked={agreed} onCheckedChange={(c) => setAgreed(c === true)} className="mt-0.5" />
           <Label htmlFor="agree" className="text-sm font-normal leading-snug text-muted-foreground">
-            J&apos;accepte les{" "}
-            <TermsDialog />{" "}
-            et la{" "}
-            <PrivacyDialog /> de Jeebti.
+            {t("signup.agreePrefix")} <TermsDialog /> {t("signup.and")} <PrivacyDialog />.
           </Label>
         </div>
 
@@ -224,7 +222,7 @@ export default function SignupPage() {
           disabled={submitting}
           className="h-12 w-full rounded-xl bg-jeebti-gold text-base font-bold text-jeebti-navy shadow-md hover:bg-jeebti-gold-light"
         >
-          {submitting ? "Création du compte…" : "Créer mon compte"}
+          {submitting ? t("signup.submitting") : t("signup.submit")}
         </Button>
       </form>
     </AuthShell>
@@ -232,32 +230,22 @@ export default function SignupPage() {
 }
 
 function TermsDialog() {
+  const { t } = useTranslation();
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button type="button" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
-          conditions générales
+          {t("signup.terms")}
         </button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Conditions générales d&apos;utilisation</DialogTitle>
+          <DialogTitle>{t("terms.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            En créant un compte Jeebti, vous acceptez d&apos;utiliser le service de manière conforme à la
-            réglementation en vigueur, de fournir des informations exactes lors de votre inscription, et de
-            protéger la confidentialité de votre code PIN et de votre mot de passe.
-          </p>
-          <p>
-            Jeebti se réserve le droit de suspendre tout compte présentant une activité frauduleuse ou une
-            violation de ces conditions. Les frais applicables à chaque service sont communiqués avant toute
-            transaction.
-          </p>
-          <p>
-            Jeebti opère via un partenaire bancaire agréé et n&apos;est pas elle-même une banque. Les fonds
-            déposés sont protégés conformément à la réglementation applicable.
-          </p>
+          <p>{t("terms.body1")}</p>
+          <p>{t("terms.body2")}</p>
+          <p>{t("terms.body3")}</p>
         </div>
       </DialogContent>
     </Dialog>
@@ -265,28 +253,21 @@ function TermsDialog() {
 }
 
 function PrivacyDialog() {
+  const { t } = useTranslation();
   return (
     <Dialog>
       <DialogTrigger asChild>
         <button type="button" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
-          politique de confidentialité
+          {t("signup.privacy")}
         </button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Politique de confidentialité</DialogTitle>
+          <DialogTitle>{t("privacy.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Vos données personnelles (nom, téléphone, e-mail) sont stockées de manière chiffrée et ne sont
-            utilisées que pour fournir les services Jeebti et prévenir la fraude. Votre mot de passe et votre
-            code PIN sont hachés et ne sont jamais stockés en clair.
-          </p>
-          <p>
-            Nous ne partageons vos informations avec des tiers que lorsque la loi l&apos;exige ou avec votre
-            consentement explicite. Vous pouvez demander la suppression de votre compte à tout moment depuis les
-            paramètres.
-          </p>
+          <p>{t("privacy.body1")}</p>
+          <p>{t("privacy.body2")}</p>
         </div>
       </DialogContent>
     </Dialog>

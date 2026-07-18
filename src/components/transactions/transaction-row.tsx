@@ -15,11 +15,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   CATEGORY_COLORS,
   CATEGORY_ICONS,
-  CATEGORY_LABELS,
+  CATEGORY_LABEL_KEYS,
   STATUS_STYLES,
-  STATUS_LABELS,
+  STATUS_LABEL_KEYS,
 } from "./category-meta";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 export function TransactionRow({
   transaction,
@@ -28,10 +29,13 @@ export function TransactionRow({
   transaction: Transaction;
   showRelativeDate?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const Icon = CATEGORY_ICONS[transaction.category];
   const color = CATEGORY_COLORS[transaction.category];
   const isCredit = transaction.type === "credit";
+  const categoryLabel = t(CATEGORY_LABEL_KEYS[transaction.category]);
+  const statusLabel = t(STATUS_LABEL_KEYS[transaction.status]);
 
   return (
     <>
@@ -64,7 +68,7 @@ export function TransactionRow({
           </span>
           {transaction.status !== "completed" && (
             <Badge className={cn("border-0", STATUS_STYLES[transaction.status])}>
-              {STATUS_LABELS[transaction.status]}
+              {statusLabel}
             </Badge>
           )}
         </div>
@@ -73,8 +77,8 @@ export function TransactionRow({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Transaction details</DialogTitle>
-            <DialogDescription>Full details for this transaction.</DialogDescription>
+            <DialogTitle>{t("transactions.detail.title")}</DialogTitle>
+            <DialogDescription>{t("transactions.detail.description")}</DialogDescription>
           </DialogHeader>
 
           <div className="flex items-center gap-3">
@@ -86,7 +90,7 @@ export function TransactionRow({
             </div>
             <div className="min-w-0">
               <p className="truncate font-semibold text-foreground">{transaction.merchant}</p>
-              <p className="text-xs text-muted-foreground">{CATEGORY_LABELS[transaction.category]}</p>
+              <p className="text-xs text-muted-foreground">{categoryLabel}</p>
             </div>
           </div>
 
@@ -104,30 +108,30 @@ export function TransactionRow({
 
           <dl className="space-y-2.5 text-sm">
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Status</dt>
+              <dt className="text-muted-foreground">{t("transactions.detail.status")}</dt>
               <dd>
                 <Badge className={cn("border-0", STATUS_STYLES[transaction.status])}>
-                  {STATUS_LABELS[transaction.status]}
+                  {statusLabel}
                 </Badge>
               </dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Date</dt>
+              <dt className="text-muted-foreground">{t("transactions.detail.date")}</dt>
               <dd className="font-medium text-foreground">{formatDateTime(transaction.date)}</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt className="text-muted-foreground">Reference</dt>
+              <dt className="text-muted-foreground">{t("transactions.detail.reference")}</dt>
               <dd className="font-medium text-foreground">{transaction.id}</dd>
             </div>
             {transaction.counterparty && (
               <div className="flex items-center justify-between">
-                <dt className="text-muted-foreground">Counterparty</dt>
+                <dt className="text-muted-foreground">{t("transactions.detail.counterparty")}</dt>
                 <dd className="font-medium text-foreground">{transaction.counterparty.name}</dd>
               </div>
             )}
             {transaction.description && (
               <div className="flex items-center justify-between gap-4">
-                <dt className="shrink-0 text-muted-foreground">Description</dt>
+                <dt className="shrink-0 text-muted-foreground">{t("transactions.detail.description.label")}</dt>
                 <dd className="text-right font-medium text-foreground">{transaction.description}</dd>
               </div>
             )}

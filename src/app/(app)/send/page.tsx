@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBankingStore } from "@/store/banking-store";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Contact } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { PageHeader } from "@/components/shared/page-header";
@@ -33,6 +34,7 @@ type Recipient = {
 type Step = "recipient" | "amount" | "review" | "success";
 
 export default function SendMoneyPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const contacts = useBankingStore((s) => s.contacts);
   const sendMoney = useBankingStore((s) => s.sendMoney);
@@ -79,11 +81,11 @@ export default function SendMoneyPage() {
   function validateAmount(): boolean {
     const value = Number(amount);
     if (!amount || Number.isNaN(value) || value <= 0) {
-      setAmountError("Enter a valid amount");
+      setAmountError(t("payments.send.amount.error.invalid"));
       return false;
     }
     if (account && value > account.availableBalance) {
-      setAmountError("Amount exceeds your available balance");
+      setAmountError(t("payments.send.amount.error.exceedsBalance"));
       return false;
     }
     setAmountError(null);
@@ -106,7 +108,7 @@ export default function SendMoneyPage() {
       void tx;
       setStep("success");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Something went wrong");
+      toast.error(e instanceof Error ? e.message : t("payments.send.toast.error"));
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +129,7 @@ export default function SendMoneyPage() {
 
   return (
     <div>
-      <PageHeader title="Send Money" description="Transfer money to a contact or a new payee." />
+      <PageHeader title={t("payments.send.page.title")} description={t("payments.send.page.description")} />
 
       <div className="mx-auto max-w-lg px-4 pb-10 sm:px-6">
         {step === "recipient" && (
@@ -141,7 +143,7 @@ export default function SendMoneyPage() {
                 }`}
               >
                 <UsersIcon className="size-3.5" />
-                Contacts
+                {t("payments.send.tab.contacts")}
               </button>
               <button
                 type="button"
@@ -151,7 +153,7 @@ export default function SendMoneyPage() {
                 }`}
               >
                 <UserPlusIcon className="size-3.5" />
-                Pay someone new
+                {t("payments.send.tab.payNew")}
               </button>
             </div>
 
@@ -160,12 +162,12 @@ export default function SendMoneyPage() {
             ) : (
               <div className="grid gap-3">
                 <div className="grid gap-2">
-                  <Label htmlFor="new-name">Recipient name</Label>
+                  <Label htmlFor="new-name">{t("payments.send.newRecipient.name")}</Label>
                   <Input id="new-name" value={newName} onChange={(e) => setNewName(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-2">
-                    <Label htmlFor="new-account">Account number</Label>
+                    <Label htmlFor="new-account">{t("payments.send.newRecipient.accountNumber")}</Label>
                     <Input
                       id="new-account"
                       value={newAccountNumber}
@@ -173,7 +175,7 @@ export default function SendMoneyPage() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="new-sortcode">Sort code</Label>
+                    <Label htmlFor="new-sortcode">{t("payments.send.newRecipient.sortCode")}</Label>
                     <Input id="new-sortcode" value={newSortCode} onChange={(e) => setNewSortCode(e.target.value)} />
                   </div>
                 </div>
@@ -183,7 +185,7 @@ export default function SendMoneyPage() {
                   disabled={!newName.trim() || !newAccountNumber.trim() || !newSortCode.trim()}
                   onClick={confirmNewRecipient}
                 >
-                  Continue
+                  {t("payments.send.newRecipient.continue")}
                 </Button>
               </div>
             )}
@@ -197,8 +199,8 @@ export default function SendMoneyPage() {
               onClick={() => setStep("recipient")}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeftIcon className="size-3.5" />
-              Back
+              <ArrowLeftIcon className="size-3.5 rtl:rotate-180" />
+              {t("payments.send.back")}
             </button>
 
             <div className="flex items-center gap-3 rounded-lg border border-border p-3">
@@ -215,10 +217,12 @@ export default function SendMoneyPage() {
 
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount">{t("payments.send.amount.label")}</Label>
                 {account && (
                   <span className="text-xs text-muted-foreground">
-                    Available: {formatCurrency(account.availableBalance, account.currency)}
+                    {t("payments.send.amount.available", {
+                      amount: formatCurrency(account.availableBalance, account.currency),
+                    })}
                   </span>
                 )}
               </div>
@@ -237,11 +241,11 @@ export default function SendMoneyPage() {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="reference">Reference (optional)</Label>
+              <Label htmlFor="reference">{t("payments.send.amount.reference")}</Label>
               <Textarea
                 id="reference"
                 rows={2}
-                placeholder="What's this for?"
+                placeholder={t("payments.send.amount.referencePlaceholder")}
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
               />
@@ -254,7 +258,7 @@ export default function SendMoneyPage() {
                 if (validateAmount()) setStep("review");
               }}
             >
-              Continue
+              {t("payments.send.amount.continue")}
             </Button>
           </div>
         )}
@@ -266,41 +270,41 @@ export default function SendMoneyPage() {
               onClick={() => setStep("amount")}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeftIcon className="size-3.5" />
-              Back
+              <ArrowLeftIcon className="size-3.5 rtl:rotate-180" />
+              {t("payments.send.back")}
             </button>
 
             <div className="rounded-2xl border border-border bg-card p-5 text-center">
-              <p className="text-xs text-muted-foreground">You&apos;re sending</p>
+              <p className="text-xs text-muted-foreground">{t("payments.send.review.sending")}</p>
               <p className="mt-1 text-3xl font-semibold tabular-nums">{formatCurrency(Number(amount))}</p>
-              <p className="mt-1 text-sm text-muted-foreground">to {recipient.name}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("payments.send.review.to", { name: recipient.name })}</p>
             </div>
 
             <div className="grid gap-2 rounded-lg border border-border p-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Recipient</span>
+                <span className="text-muted-foreground">{t("payments.send.review.recipient")}</span>
                 <span>{recipient.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Sort code · Account</span>
+                <span className="text-muted-foreground">{t("payments.send.review.sortCodeAccount")}</span>
                 <span>
                   {recipient.sortCode} · {recipient.accountNumber}
                 </span>
               </div>
               {reference && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Reference</span>
+                  <span className="text-muted-foreground">{t("payments.send.review.reference")}</span>
                   <span>{reference}</span>
                 </div>
               )}
               <div className="flex justify-between font-medium">
-                <span className="text-muted-foreground">Amount</span>
+                <span className="text-muted-foreground">{t("payments.send.review.amount")}</span>
                 <span>{formatCurrency(Number(amount))}</span>
               </div>
             </div>
 
             <Button type="button" className="w-full" disabled={submitting} onClick={handleConfirm}>
-              {submitting ? "Sending..." : "Confirm and send"}
+              {submitting ? t("payments.send.review.sending2") : t("payments.send.review.confirmAndSend")}
             </Button>
           </div>
         )}
@@ -312,11 +316,12 @@ export default function SendMoneyPage() {
             </div>
             <div>
               <p className="text-2xl font-semibold tabular-nums">{formatCurrency(Number(amount))}</p>
-              <p className="text-sm text-muted-foreground">sent to {recipient.name}</p>
+              <p className="text-sm text-muted-foreground">{t("payments.send.success.sentTo", { name: recipient.name })}</p>
             </div>
             {newBalance !== null && (
               <div className="rounded-lg border border-border px-4 py-2 text-sm">
-                New balance: <span className="font-medium tabular-nums">{formatCurrency(newBalance)}</span>
+                {t("payments.send.success.newBalance")}{" "}
+                <span className="font-medium tabular-nums">{formatCurrency(newBalance)}</span>
               </div>
             )}
             {reference && (
@@ -326,10 +331,10 @@ export default function SendMoneyPage() {
             )}
             <div className="flex w-full gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={reset}>
-                Send another
+                {t("payments.send.success.sendAnother")}
               </Button>
               <Button type="button" className="flex-1" onClick={() => router.push("/dashboard")}>
-                Done
+                {t("payments.send.success.done")}
               </Button>
             </div>
           </div>

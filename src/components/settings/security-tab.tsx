@@ -40,6 +40,7 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { useBankingStore } from "@/store/banking-store";
 import { relativeTime } from "@/lib/format";
+import { useTranslation } from "@/hooks/use-translation";
 import type { Device } from "@/lib/types";
 
 function generateSecret() {
@@ -57,10 +58,21 @@ const deviceIcons: Record<Device["type"], typeof Smartphone> = {
   tablet: Tablet,
 };
 
-const severityStyles: Record<string, string> = {
+const severityStyleClasses: Record<string, string> = {
   low: "bg-amber-500/10 text-amber-600",
   medium: "bg-orange-500/10 text-orange-600",
   high: "bg-red-500/10 text-red-600",
+};
+
+const severityLabelKeys: Record<string, string> = {
+  low: "settings.security.severity.low",
+  medium: "settings.security.severity.medium",
+  high: "settings.security.severity.high",
+};
+
+const alertStatusLabelKeys: Record<string, string> = {
+  open: "settings.security.alertStatus.open",
+  resolved: "settings.security.alertStatus.resolved",
 };
 
 export function SecurityTab() {
@@ -74,6 +86,7 @@ export function SecurityTab() {
     revokeSession,
     resolveFraudAlert,
   } = useBankingStore();
+  const { t } = useTranslation();
 
   const [totpOpen, setTotpOpen] = useState(false);
   const [disable2faOpen, setDisable2faOpen] = useState(false);
@@ -95,23 +108,27 @@ export function SecurityTab() {
   function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault();
     if (code.length !== 6) {
-      toast.error("Enter the 6-digit code from your authenticator app");
+      toast.error(t("settings.security.2fa.toast.codeRequired"));
       return;
     }
     updateUser({ twoFactorEnabled: true });
-    toast.success("Two-factor authentication enabled");
+    toast.success(t("settings.security.2fa.toast.enabled"));
     setTotpOpen(false);
   }
 
   function handleDisable2fa() {
     updateUser({ twoFactorEnabled: false });
-    toast.success("Two-factor authentication disabled");
+    toast.success(t("settings.security.2fa.toast.disabled"));
     setDisable2faOpen(false);
   }
 
   function handleBiometricToggle() {
     updateUser({ biometricEnabled: !user!.biometricEnabled });
-    toast.success(user!.biometricEnabled ? "Biometric login disabled" : "Biometric login enabled");
+    toast.success(
+      user!.biometricEnabled
+        ? t("settings.security.biometric.toast.disabled")
+        : t("settings.security.biometric.toast.enabled")
+    );
   }
 
   return (
@@ -120,18 +137,18 @@ export function SecurityTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="size-4 text-jeebti-brand" />
-            Two-factor authentication
+            {t("settings.security.2fa.title")}
           </CardTitle>
-          <CardDescription>Add an extra layer of security with an authenticator app</CardDescription>
+          <CardDescription>{t("settings.security.2fa.desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">
-                {user.twoFactorEnabled ? "Enabled" : "Disabled"}
+                {user.twoFactorEnabled ? t("settings.security.2fa.enabled") : t("settings.security.2fa.disabled")}
               </p>
               <p className="text-xs text-muted-foreground">
-                Require a code from your authenticator app when signing in
+                {t("settings.security.2fa.hint")}
               </p>
             </div>
             <Switch checked={user.twoFactorEnabled} onCheckedChange={handleToggle2fa} />
@@ -143,18 +160,18 @@ export function SecurityTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Fingerprint className="size-4 text-jeebti-brand" />
-            Biometric login
+            {t("settings.security.biometric.title")}
           </CardTitle>
-          <CardDescription>Use Face ID, Touch ID, or fingerprint to sign in faster</CardDescription>
+          <CardDescription>{t("settings.security.biometric.desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium">
-                {user.biometricEnabled ? "Enabled" : "Disabled"}
+                {user.biometricEnabled ? t("settings.security.2fa.enabled") : t("settings.security.2fa.disabled")}
               </p>
               <p className="text-xs text-muted-foreground">
-                Unlock the app and approve payments using your device&apos;s biometrics
+                {t("settings.security.biometric.hint")}
               </p>
             </div>
             <Switch checked={user.biometricEnabled} onCheckedChange={handleBiometricToggle} />
@@ -164,8 +181,8 @@ export function SecurityTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Devices</CardTitle>
-          <CardDescription>Devices that have signed in to your account</CardDescription>
+          <CardTitle>{t("settings.security.devices.title")}</CardTitle>
+          <CardDescription>{t("settings.security.devices.desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {devices.map((device) => {
@@ -182,10 +199,10 @@ export function SecurityTab() {
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium">{device.name}</p>
-                      {device.isCurrent && <Badge variant="secondary">This device</Badge>}
+                      {device.isCurrent && <Badge variant="secondary">{t("settings.security.devices.thisDevice")}</Badge>}
                       {device.trusted && (
                         <Badge className="bg-emerald-500/10 text-emerald-600" variant="outline">
-                          Trusted
+                          {t("settings.security.devices.trusted")}
                         </Badge>
                       )}
                     </div>
@@ -197,7 +214,7 @@ export function SecurityTab() {
                 <div className="flex items-center gap-2">
                   {!device.trusted && (
                     <Button variant="outline" size="sm" onClick={() => trustDevice(device.id)}>
-                      Trust device
+                      {t("settings.security.devices.trustDevice")}
                     </Button>
                   )}
                   {!device.isCurrent && (
@@ -205,19 +222,23 @@ export function SecurityTab() {
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
                           <Trash2 className="size-4" />
-                          Remove
+                          {t("settings.security.devices.remove")}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Remove {device.name}?</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            {t("settings.security.devices.removeConfirmTitle", { device: device.name })}
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            This device will need to sign in again to access your account.
+                            {t("settings.security.devices.removeConfirmDesc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => removeDevice(device.id)}>Remove</AlertDialogAction>
+                          <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => removeDevice(device.id)}>
+                            {t("settings.security.devices.remove")}
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -231,8 +252,8 @@ export function SecurityTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Active sessions</CardTitle>
-          <CardDescription>Where you&apos;re currently signed in</CardDescription>
+          <CardTitle>{t("settings.security.sessions.title")}</CardTitle>
+          <CardDescription>{t("settings.security.sessions.desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {sessions.map((session) => (
@@ -243,10 +264,10 @@ export function SecurityTab() {
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-medium">{session.location}</p>
-                  {session.isCurrent && <Badge variant="secondary">Current session</Badge>}
+                  {session.isCurrent && <Badge variant="secondary">{t("settings.security.sessions.current")}</Badge>}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Last active {relativeTime(session.lastActive)}
+                  {t("settings.security.sessions.lastActive", { time: relativeTime(session.lastActive) })}
                 </p>
               </div>
               <Button
@@ -255,7 +276,7 @@ export function SecurityTab() {
                 disabled={session.isCurrent}
                 onClick={() => revokeSession(session.id)}
               >
-                Revoke
+                {t("settings.security.sessions.revoke")}
               </Button>
             </div>
           ))}
@@ -266,30 +287,32 @@ export function SecurityTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldAlert className="size-4 text-jeebti-brand" />
-            Fraud alerts
+            {t("settings.security.fraud.title")}
           </CardTitle>
-          <CardDescription>Suspicious activity detected on your account</CardDescription>
+          <CardDescription>{t("settings.security.fraud.desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {fraudAlerts.length === 0 && (
-            <p className="text-sm text-muted-foreground">No fraud alerts on your account.</p>
+            <p className="text-sm text-muted-foreground">{t("settings.security.fraud.empty")}</p>
           )}
           {fraudAlerts.map((alert) => (
             <div key={alert.id} className="rounded-lg border border-border p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={severityStyles[alert.severity]}>
-                    {alert.severity}
+                  <Badge variant="outline" className={severityStyleClasses[alert.severity]}>
+                    {t(severityLabelKeys[alert.severity])}
                   </Badge>
                   <p className="text-sm font-medium">{alert.title}</p>
                 </div>
-                <Badge variant={alert.status === "open" ? "secondary" : "outline"}>{alert.status}</Badge>
+                <Badge variant={alert.status === "open" ? "secondary" : "outline"}>
+                  {t(alertStatusLabelKeys[alert.status])}
+                </Badge>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">{alert.description}</p>
               {alert.status === "open" && (
                 <div className="mt-2 flex justify-end">
                   <Button size="sm" variant="outline" onClick={() => resolveFraudAlert(alert.id)}>
-                    Resolve
+                    {t("settings.security.fraud.resolve")}
                   </Button>
                 </div>
               )}
@@ -301,9 +324,9 @@ export function SecurityTab() {
       <Dialog open={totpOpen} onOpenChange={setTotpOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set up authenticator app</DialogTitle>
+            <DialogTitle>{t("settings.security.totp.title")}</DialogTitle>
             <DialogDescription>
-              Scan the QR code with your authenticator app, or enter the secret key manually.
+              {t("settings.security.totp.desc")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4">
@@ -315,19 +338,19 @@ export function SecurityTab() {
             </code>
             <form className="w-full space-y-3" onSubmit={handleVerifyCode}>
               <div className="space-y-2">
-                <Label htmlFor="totp-code">6-digit code</Label>
+                <Label htmlFor="totp-code">{t("settings.security.totp.codeLabel")}</Label>
                 <Input
                   id="totp-code"
                   inputMode="numeric"
                   maxLength={6}
-                  placeholder="123456"
+                  placeholder={t("settings.security.totp.codePlaceholder")}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                 />
               </div>
               <DialogFooter>
                 <Button type="submit" className="w-full">
-                  Verify & enable
+                  {t("settings.security.totp.verify")}
                 </Button>
               </DialogFooter>
             </form>
@@ -338,18 +361,18 @@ export function SecurityTab() {
       <AlertDialog open={disable2faOpen} onOpenChange={setDisable2faOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Disable two-factor authentication?</AlertDialogTitle>
+            <AlertDialogTitle>{t("settings.security.disable2fa.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Your account will be less secure without a second sign-in step.
+              {t("settings.security.disable2fa.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDisable2fa}
             >
-              Disable
+              {t("settings.security.disable2fa.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

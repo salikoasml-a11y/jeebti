@@ -139,6 +139,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     );
                   })}
                 </nav>
+                <div className="border-t border-border p-3">
+                  <Link
+                    href="/dashboard"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
+                  >
+                    Exit to customer app
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      await signOut();
+                      router.replace("/login");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+                  >
+                    <LogOut className="size-4.5" />
+                    Sign out
+                  </button>
+                </div>
               </SheetContent>
             </Sheet>
             <span className="text-base font-bold">Admin Console</span>

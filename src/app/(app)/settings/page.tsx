@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GeneralTab } from "@/components/settings/general-tab";
 import { SecurityTab } from "@/components/settings/security-tab";
 import { NotificationsTab } from "@/components/settings/notifications-tab";
+import { useTranslation } from "@/hooks/use-translation";
 
 const TAB_VALUES = ["general", "security", "notifications"] as const;
 type TabValue = (typeof TAB_VALUES)[number];
@@ -22,6 +23,7 @@ export default function SettingsPage() {
 function SettingsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   const tab = useMemo<TabValue>(() => {
     const value = searchParams.get("tab");
@@ -37,14 +39,14 @@ function SettingsPageContent() {
 
   return (
     <div className="pb-12">
-      <PageHeader title="Settings" description="Manage your account preferences and security" />
+      <PageHeader title={t("settings.title")} description={t("settings.description")} />
 
       <div className="px-4 sm:px-6">
         <Tabs value={tab} onValueChange={handleTabChange}>
           <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="general">{t("settings.tab.general")}</TabsTrigger>
+            <TabsTrigger value="security">{t("settings.tab.security")}</TabsTrigger>
+            <TabsTrigger value="notifications">{t("settings.tab.notifications")}</TabsTrigger>
           </TabsList>
           <TabsContent value="general" className="mt-6">
             <GeneralTab />

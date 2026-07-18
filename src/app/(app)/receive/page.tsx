@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { useBankingStore } from "@/store/banking-store";
+import { useTranslation } from "@/hooks/use-translation";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { CopyIcon, CheckIcon } from "lucide-react";
 
 function CopyRow({ label, value }: { label: string; value: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
@@ -26,7 +28,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
         onClick={async () => {
           await navigator.clipboard.writeText(value);
           setCopied(true);
-          toast.success("Copied");
+          toast.success(t("payments.receive.toast.copied"));
           setTimeout(() => setCopied(false), 1500);
         }}
       >
@@ -37,6 +39,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function ReceiveMoneyPage() {
+  const { t } = useTranslation();
   const primaryAccount = useBankingStore((s) => s.primaryAccount);
   const requestMoney = useBankingStore((s) => s.requestMoney);
   const account = primaryAccount();
@@ -50,30 +53,30 @@ export default function ReceiveMoneyPage() {
 
   return (
     <div>
-      <PageHeader title="Receive Money" description="Share your account details or request a specific amount." />
+      <PageHeader title={t("payments.receive.page.title")} description={t("payments.receive.page.description")} />
 
       <div className="grid gap-6 px-4 pb-10 sm:px-6 lg:grid-cols-2">
         <div className="space-y-3 rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-sm font-medium">Your account details</h2>
+          <h2 className="text-sm font-medium">{t("payments.receive.accountDetails.title")}</h2>
           {account ? (
             <div className="grid gap-2">
-              <CopyRow label="Account name" value={account.name} />
-              <CopyRow label="IBAN" value={account.iban} />
-              <CopyRow label="Sort code" value={account.sortCode} />
-              <CopyRow label="Account number" value={account.accountNumber} />
+              <CopyRow label={t("payments.receive.accountDetails.accountName")} value={account.name} />
+              <CopyRow label={t("payments.receive.accountDetails.iban")} value={account.iban} />
+              <CopyRow label={t("payments.receive.accountDetails.sortCode")} value={account.sortCode} />
+              <CopyRow label={t("payments.receive.accountDetails.accountNumber")} value={account.accountNumber} />
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No account found.</p>
+            <p className="text-sm text-muted-foreground">{t("payments.receive.accountDetails.noAccount")}</p>
           )}
         </div>
 
         <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-sm font-medium">Request a specific amount</h2>
+          <h2 className="text-sm font-medium">{t("payments.receive.request.title")}</h2>
 
           {!link ? (
             <div className="grid gap-3">
               <div className="grid gap-2">
-                <Label htmlFor="req-amount">Amount</Label>
+                <Label htmlFor="req-amount">{t("payments.receive.request.amount")}</Label>
                 <Input
                   id="req-amount"
                   type="number"
@@ -84,19 +87,19 @@ export default function ReceiveMoneyPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="req-from">From</Label>
+                <Label htmlFor="req-from">{t("payments.receive.request.from")}</Label>
                 <Input
                   id="req-from"
-                  placeholder="Who are you requesting from?"
+                  placeholder={t("payments.receive.request.fromPlaceholder")}
                   value={fromName}
                   onChange={(e) => setFromName(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="req-reference">Reference (optional)</Label>
+                <Label htmlFor="req-reference">{t("payments.receive.request.reference")}</Label>
                 <Input
                   id="req-reference"
-                  placeholder="e.g. Dinner split"
+                  placeholder={t("payments.receive.request.referencePlaceholder")}
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                 />
@@ -113,15 +116,15 @@ export default function ReceiveMoneyPage() {
                       reference: reference || undefined,
                     });
                     setLink(result.link);
-                    toast.success("Payment request created");
+                    toast.success(t("payments.receive.request.toast.created"));
                   } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Something went wrong");
+                    toast.error(e instanceof Error ? e.message : t("payments.receive.request.toast.error"));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
               >
-                {submitting ? "Creating request..." : "Create request"}
+                {submitting ? t("payments.receive.request.creating") : t("payments.receive.request.create")}
               </Button>
             </div>
           ) : (
@@ -138,7 +141,7 @@ export default function ReceiveMoneyPage() {
                   onClick={async () => {
                     await navigator.clipboard.writeText(link);
                     setLinkCopied(true);
-                    toast.success("Link copied");
+                    toast.success(t("payments.receive.toast.linkCopied"));
                     setTimeout(() => setLinkCopied(false), 1500);
                   }}
                 >
@@ -155,7 +158,7 @@ export default function ReceiveMoneyPage() {
                   setReference("");
                 }}
               >
-                New request
+                {t("payments.receive.request.newRequest")}
               </Button>
             </div>
           )}

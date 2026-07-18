@@ -14,27 +14,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface ChatMessage {
   id: string;
   author: "user" | "bot";
-  text: string;
+  textKey?: string;
+  text?: string;
 }
 
-const BOT_REPLIES = [
-  "Thanks for reaching out! I'm looking into your account now — this'll just take a moment.",
-  "I can see your recent activity. Could you tell me a bit more about the issue you're experiencing?",
-  "Got it, I've logged this for our support team. You'll also get a confirmation by email within 24 hours.",
-];
+const BOT_REPLY_KEYS = ["help.chat.reply1", "help.chat.reply2", "help.chat.reply3"];
 
 export function LiveChatSheet() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: "greet", author: "bot", text: "Hi there! I'm Jeebti's support assistant. How can I help you today?" },
+    { id: "greet", author: "bot", textKey: "help.chat.greeting" },
   ]);
   const [input, setInput] = useState("");
   const replyIndex = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -49,11 +48,11 @@ export function LiveChatSheet() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
-    const reply = BOT_REPLIES[Math.min(replyIndex.current, BOT_REPLIES.length - 1)];
+    const replyKey = BOT_REPLY_KEYS[Math.min(replyIndex.current, BOT_REPLY_KEYS.length - 1)];
     replyIndex.current += 1;
 
     setTimeout(() => {
-      setMessages((prev) => [...prev, { id: `bot_${Date.now()}`, author: "bot", text: reply }]);
+      setMessages((prev) => [...prev, { id: `bot_${Date.now()}`, author: "bot", textKey: replyKey }]);
     }, 1200);
   }
 
@@ -62,13 +61,13 @@ export function LiveChatSheet() {
       <SheetTrigger asChild>
         <Button className="fixed bottom-24 right-4 z-40 rounded-full shadow-lg sm:bottom-8 sm:right-8" size="lg">
           <MessageCircle className="size-4" />
-          Live chat
+          {t("help.chat.triggerLabel")}
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Live chat support</SheetTitle>
-          <SheetDescription>Typically replies in under a minute</SheetDescription>
+          <SheetTitle>{t("help.chat.title")}</SheetTitle>
+          <SheetDescription>{t("help.chat.desc")}</SheetDescription>
         </SheetHeader>
 
         <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4">
@@ -85,7 +84,7 @@ export function LiveChatSheet() {
                     : "bg-muted text-foreground"
                 )}
               >
-                {message.text}
+                {message.textKey ? t(message.textKey) : message.text}
               </div>
             </div>
           ))}
@@ -96,8 +95,8 @@ export function LiveChatSheet() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              aria-label="Chat message"
+              placeholder={t("help.chat.inputPlaceholder")}
+              aria-label={t("help.chat.inputAriaLabel")}
             />
             <Button type="submit" size="icon" disabled={!input.trim()}>
               <Send className="size-4" />
