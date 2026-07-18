@@ -5,7 +5,6 @@ import type {
   SavingsGoal,
   Transaction,
   TransactionCategory,
-  User,
 } from "@/lib/types";
 
 /**
@@ -59,17 +58,4 @@ export interface BankProvider {
     accountId: string,
     range: "week" | "month" | "year"
   ): Promise<{ category: TransactionCategory; amount: number }[]>;
-}
-
-export interface AuthProvider {
-  signUp(input: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    password: string;
-  }): Promise<User>;
-  signIn(email: string, password: string): Promise<User>;
-  signOut(): Promise<void>;
-  getSession(): Promise<User | null>;
 }

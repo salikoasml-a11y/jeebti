@@ -4,311 +4,291 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { User, Phone, Mail, AtSign, Lock } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { JeebtiLogo } from "@/components/marketing/jeebti-logo";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { PinInput } from "@/components/auth/pin-input";
 import { useAuthStore } from "@/store/auth-store";
 
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  confirmPassword?: string;
-}
+const PHONE_PATTERN = /^\+?[0-9]{7,15}$/;
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phonePattern = /^[+()\-\s\d]{7,20}$/;
+function FieldRow({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3 border-b-2 border-jeebti-navy/20 pb-2 focus-within:border-jeebti-gold dark:border-white/20">
+      <Icon className="size-5 shrink-0 text-jeebti-navy/60 dark:text-white/50" />
+      {children}
+    </div>
+  );
+}
 
 export default function SignupPage() {
   const router = useRouter();
   const signUp = useAuthStore((s) => s.signUp);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [agreed, setAgreed] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [legalDialog, setLegalDialog] = useState<"terms" | "privacy" | null>(null);
 
-  const validate = (): boolean => {
-    const next: FormErrors = {};
-    if (!firstName.trim()) next.firstName = "First name is required.";
-    if (!lastName.trim()) next.lastName = "Last name is required.";
-    if (!email.trim() || !emailPattern.test(email)) next.email = "Enter a valid email address.";
-    if (!phone.trim() || !phonePattern.test(phone)) next.phone = "Enter a valid phone number.";
-    if (password.length < 8) next.password = "Password must be at least 8 characters.";
-    if (confirmPassword !== password) next.confirmPassword = "Passwords do not match.";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
+  function validate(): string | null {
+    if (fullName.trim().length < 2) return "Veuillez indiquer votre nom complet.";
+    if (!PHONE_PATTERN.test(phone.trim())) return "Numéro de téléphone invalide.";
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Adresse e-mail invalide.";
+    if (username.trim() && !/^[a-zA-Z0-9_.]{3,20}$/.test(username.trim()))
+      return "Le nom d'utilisateur doit contenir entre 3 et 20 caractères (lettres, chiffres, _ ou .).";
+    if (password.length < 8) return "Le mot de passe doit contenir au moins 8 caractères.";
+    if (password !== confirmPassword) return "Les mots de passe ne correspondent pas.";
+    if (pin.length !== 4) return "Le code PIN doit contenir 4 chiffres.";
+    if (pin !== confirmPin) return "Les codes PIN ne correspondent pas.";
+    if (!agreed) return "Veuillez accepter les conditions générales.";
+    return null;
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
-    if (!agreed) {
-      toast.error("Please agree to the Terms & Privacy Policy to continue.");
+    const error = validate();
+    if (error) {
+      toast.error(error);
       return;
     }
+
     setSubmitting(true);
     try {
-      await signUp({ firstName, lastName, email, phone, password });
-      toast.success("Account created — welcome to Jeebti!");
-      router.replace("/dashboard");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
-      toast.error(message);
+      const user = await signUp({
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim() || undefined,
+        username: username.trim() || undefined,
+        password,
+        pin,
+      });
+      toast.success(`Bienvenue chez Jeebti, ${user.firstName} !`);
+      router.push("/dashboard");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Une erreur est survenue.");
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-12">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,var(--jeebti-brand),transparent)] opacity-[0.14]"
-      />
-
-      <Link href="/" className="mb-8" aria-label="Jeebti home">
-        <JeebtiLogo />
-      </Link>
-
-      <div className="w-full max-w-[460px] rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5 sm:p-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">Banking Made Simple — join in under two minutes.</p>
-        </div>
-
-        <form className="mt-7 flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="firstName">First name</Label>
-              <Input
-                id="firstName"
-                autoComplete="given-name"
-                placeholder="Amelia"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                disabled={submitting}
-                aria-invalid={!!errors.firstName}
-              />
-              {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="lastName">Last name</Label>
-              <Input
-                id="lastName"
-                autoComplete="family-name"
-                placeholder="Clarke"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                disabled={submitting}
-                aria-invalid={!!errors.lastName}
-              />
-              {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={submitting}
-              aria-invalid={!!errors.email}
-            />
-            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="phone">Phone number</Label>
-            <Input
-              id="phone"
-              type="tel"
-              autoComplete="tel"
-              placeholder="+44 7700 900123"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              disabled={submitting}
-              aria-invalid={!!errors.phone}
-            />
-            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="At least 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={submitting}
-                aria-invalid={!!errors.password}
-                className="pr-9"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground hover:text-foreground"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="Re-enter your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={submitting}
-                aria-invalid={!!errors.confirmPassword}
-                className="pr-9"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground hover:text-foreground"
-                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-              >
-                {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-            {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
-          </div>
-
-          <div className="flex items-start gap-2.5 pt-1">
-            <Checkbox
-              id="agree"
-              checked={agreed}
-              onCheckedChange={(checked) => setAgreed(checked === true)}
-              disabled={submitting}
-              className="mt-0.5"
-            />
-            <Label htmlFor="agree" className="text-sm font-normal text-muted-foreground">
-              I agree to the{" "}
-              <button
-                type="button"
-                className="font-medium text-jeebti-brand hover:underline"
-                onClick={() => setLegalDialog("terms")}
-              >
-                Terms of Service
-              </button>{" "}
-              and{" "}
-              <button
-                type="button"
-                className="font-medium text-jeebti-brand hover:underline"
-                onClick={() => setLegalDialog("privacy")}
-              >
-                Privacy Policy
-              </button>
-              .
-            </Label>
-          </div>
-
-          <Button type="submit" size="lg" className="mt-1 h-10" disabled={submitting || !agreed}>
-            {submitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Creating account…
-              </>
-            ) : (
-              "Create account"
-            )}
-          </Button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-jeebti-brand hover:underline">
-            Log in
+    <AuthShell
+      footer={
+        <>
+          Déjà un compte ?{" "}
+          <Link href="/login" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
+            Se connecter
           </Link>
-        </p>
+        </>
+      }
+    >
+      <div className="mb-6 text-center">
+        <h1 className="text-xl font-bold text-foreground">Créer un compte Jeebti</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Ouvrez votre compte en quelques minutes.</p>
       </div>
 
-      <Dialog open={legalDialog !== null} onOpenChange={(open) => !open && setLegalDialog(null)}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{legalDialog === "terms" ? "Terms of Service" : "Privacy Policy"}</DialogTitle>
-            <DialogDescription>Last updated 1 July 2026</DialogDescription>
-          </DialogHeader>
-          {legalDialog === "terms" ? (
-            <div className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground">
-              <p>
-                By creating a Jeebti account, you agree to use the service in accordance with applicable law and
-                these terms. Jeebti provides account, payment, and card services via a licensed banking partner;
-                Jeebti itself is not a bank.
-              </p>
-              <p>
-                You are responsible for keeping your login credentials, PIN, and two-factor authentication methods
-                confidential. You must notify us immediately of any unauthorized use of your account.
-              </p>
-              <p>
-                Fees, limits, and available features may vary and will be disclosed within the app before you
-                confirm a transaction. We may suspend or close accounts found to be in breach of these terms or
-                relevant financial regulations.
-              </p>
-              <p>
-                These terms may be updated from time to time; continued use of Jeebti after changes take effect
-                constitutes acceptance of the revised terms.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground">
-              <p>
-                We collect the personal and financial information necessary to open and operate your account,
-                including your name, contact details, date of birth, and transaction activity.
-              </p>
-              <p>
-                Your data is encrypted in transit and at rest, and is only shared with our licensed banking
-                partner, regulators, and service providers as needed to deliver Jeebti&apos;s services or comply
-                with the law.
-              </p>
-              <p>
-                We use your data to prevent fraud, personalize your experience, and meet our regulatory
-                obligations. We do not sell your personal data to third parties.
-              </p>
-              <p>
-                You can request a copy of your data or ask us to delete it, subject to our regulatory
-                record-keeping requirements, at any time from your account settings.
-              </p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="fullName">Nom complet</Label>
+          <FieldRow icon={User}>
+            <input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Amadou Ba"
+              autoComplete="name"
+              className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none placeholder:text-muted-foreground"
+              required
+            />
+          </FieldRow>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">Numéro de téléphone</Label>
+          <FieldRow icon={Phone}>
+            <input
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+222 XX XX XX XX"
+              autoComplete="tel"
+              className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none placeholder:text-muted-foreground"
+              required
+            />
+          </FieldRow>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mail (optionnel)</Label>
+            <FieldRow icon={Mail}>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none"
+              />
+            </FieldRow>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="username">Nom d&apos;utilisateur (optionnel)</Label>
+            <FieldRow icon={AtSign}>
+              <input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none"
+              />
+            </FieldRow>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="password">Mot de passe</Label>
+            <FieldRow icon={Lock}>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none"
+                required
+              />
+            </FieldRow>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+            <FieldRow icon={Lock}>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                className="w-full border-0 bg-transparent p-0 text-base text-foreground outline-none"
+                required
+              />
+            </FieldRow>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Code PIN (4 chiffres)</Label>
+            <PinInput value={pin} onChange={setPin} aria-label="Code PIN" />
+          </div>
+          <div className="space-y-2">
+            <Label>Confirmer le code PIN</Label>
+            <PinInput value={confirmPin} onChange={setConfirmPin} aria-label="Confirmer le code PIN" />
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2.5">
+          <Checkbox id="agree" checked={agreed} onCheckedChange={(c) => setAgreed(c === true)} className="mt-0.5" />
+          <Label htmlFor="agree" className="text-sm font-normal leading-snug text-muted-foreground">
+            J&apos;accepte les{" "}
+            <TermsDialog />{" "}
+            et la{" "}
+            <PrivacyDialog /> de Jeebti.
+          </Label>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={submitting}
+          className="h-12 w-full rounded-xl bg-jeebti-gold text-base font-bold text-jeebti-navy shadow-md hover:bg-jeebti-gold-light"
+        >
+          {submitting ? "Création du compte…" : "Créer mon compte"}
+        </Button>
+      </form>
+    </AuthShell>
+  );
+}
+
+function TermsDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button type="button" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
+          conditions générales
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Conditions générales d&apos;utilisation</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            En créant un compte Jeebti, vous acceptez d&apos;utiliser le service de manière conforme à la
+            réglementation en vigueur, de fournir des informations exactes lors de votre inscription, et de
+            protéger la confidentialité de votre code PIN et de votre mot de passe.
+          </p>
+          <p>
+            Jeebti se réserve le droit de suspendre tout compte présentant une activité frauduleuse ou une
+            violation de ces conditions. Les frais applicables à chaque service sont communiqués avant toute
+            transaction.
+          </p>
+          <p>
+            Jeebti opère via un partenaire bancaire agréé et n&apos;est pas elle-même une banque. Les fonds
+            déposés sont protégés conformément à la réglementation applicable.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PrivacyDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button type="button" className="font-semibold text-jeebti-navy underline dark:text-jeebti-gold-light">
+          politique de confidentialité
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Politique de confidentialité</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            Vos données personnelles (nom, téléphone, e-mail) sont stockées de manière chiffrée et ne sont
+            utilisées que pour fournir les services Jeebti et prévenir la fraude. Votre mot de passe et votre
+            code PIN sont hachés et ne sont jamais stockés en clair.
+          </p>
+          <p>
+            Nous ne partageons vos informations avec des tiers que lorsque la loi l&apos;exige ou avec votre
+            consentement explicite. Vous pouvez demander la suppression de votre compte à tout moment depuis les
+            paramètres.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

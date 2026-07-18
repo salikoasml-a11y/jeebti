@@ -24,9 +24,12 @@ let goals: SavingsGoal[] = [...demoSavingsGoals];
  * interface — no UI code changes required.
  */
 export class MockBankProvider implements BankProvider {
-  async getAccounts(userId: string) {
+  async getAccounts(_userId: string) {
     await delay();
-    return accounts.filter((a) => a.userId === userId);
+    // Real auth identifies the person; this illustrative banking ledger
+    // (balances/transactions/cards/goals) is intentionally shared demo
+    // data per the project's mock-provider design — see provider.ts.
+    return accounts;
   }
 
   async getAccount(accountId: string) {
@@ -79,9 +82,9 @@ export class MockBankProvider implements BankProvider {
     return { id, link: `https://jeebti.app/pay/${id}` };
   }
 
-  async getCards(userId: string) {
+  async getCards(_userId: string) {
     await delay();
-    return cards.filter((c) => c.userId === userId);
+    return cards;
   }
 
   async freezeCard(cardId: string) {
@@ -177,9 +180,9 @@ export class MockBankProvider implements BankProvider {
     return card;
   }
 
-  async getSavingsGoals(userId: string) {
+  async getSavingsGoals(_userId: string) {
     await delay();
-    return goals.filter((g) => g.userId === userId);
+    return goals;
   }
 
   async createSavingsGoal(input: Omit<SavingsGoal, "id" | "createdAt" | "currentAmount">) {

@@ -83,6 +83,10 @@
   --sidebar-ring: oklch(0.5 0.19 260);
   --jeebti-brand: oklch(0.5 0.19 260);
   --jeebti-brand-light: oklch(0.63 0.17 250);
+  --jeebti-navy: oklch(0.24 0.09 265);
+  --jeebti-navy-light: oklch(0.32 0.1 265);
+  --jeebti-gold: oklch(0.76 0.12 82);
+  --jeebti-gold-light: oklch(0.85 0.1 90);
 }
 
 .dark {
@@ -119,11 +123,19 @@
   --sidebar-ring: oklch(0.63 0.17 250);
   --jeebti-brand: oklch(0.63 0.17 250);
   --jeebti-brand-light: oklch(0.75 0.13 210);
+  --jeebti-navy: oklch(0.3 0.1 265);
+  --jeebti-navy-light: oklch(0.4 0.1 265);
+  --jeebti-gold: oklch(0.78 0.12 82);
+  --jeebti-gold-light: oklch(0.85 0.1 90);
 }
 
 @theme inline {
   --color-jeebti-brand: var(--jeebti-brand);
   --color-jeebti-brand-light: var(--jeebti-brand-light);
+  --color-jeebti-navy: var(--jeebti-navy);
+  --color-jeebti-navy-light: var(--jeebti-navy-light);
+  --color-jeebti-gold: var(--jeebti-gold);
+  --color-jeebti-gold-light: var(--jeebti-gold-light);
 }
 
 @layer base {
