@@ -18,6 +18,7 @@ import { PinInput } from "@/components/auth/pin-input";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/use-translation";
+import { authErrorMessage } from "@/lib/auth/error-messages";
 
 export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -55,7 +56,7 @@ export function ForgotPinDialog({ trigger }: { trigger: React.ReactNode }) {
       reset();
       router.push("/dashboard");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("error.generic"));
+      toast.error(e instanceof Error ? authErrorMessage(e.message, t) : t("error.generic"));
     } finally {
       setSubmitting(false);
     }

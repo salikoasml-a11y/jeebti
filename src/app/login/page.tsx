@@ -12,6 +12,7 @@ import { PinInput } from "@/components/auth/pin-input";
 import { ForgotPinDialog } from "@/components/auth/forgot-pin-dialog";
 import { useAuthStore } from "@/store/auth-store";
 import { useTranslation } from "@/hooks/use-translation";
+import { authErrorMessage } from "@/lib/auth/error-messages";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function LoginPage() {
       toast.success(`${welcome} ${user.firstName}!`);
       router.push(user.role === "admin" ? "/admin" : "/dashboard");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("error.generic"));
+      toast.error(e instanceof Error ? authErrorMessage(e.message, t) : t("error.generic"));
       setPin("");
     } finally {
       setSubmitting(false);

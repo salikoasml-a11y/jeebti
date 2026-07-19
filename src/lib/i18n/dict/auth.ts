@@ -1,6 +1,65 @@
 import type { Namespace } from "@/lib/i18n/types";
 
 export const auth: Namespace = {
+  // Server-returned auth error codes, translated. Looked up via
+  // authErrorMessage() in @/lib/auth/error-messages — never read these
+  // raw codes off an Error.message directly in UI copy.
+  "authError.invalid_credentials": {
+    en: "Incorrect number, username, or PIN.",
+    fr: "Numéro, nom d'utilisateur ou code PIN incorrect.",
+    ar: "الرقم أو اسم المستخدم أو رمز التعريف الشخصي غير صحيح.",
+  },
+  "authError.account_locked": {
+    en: "Account temporarily locked after several attempts. Try again in 15 minutes.",
+    fr: "Compte temporairement verrouillé suite à plusieurs tentatives. Réessayez dans 15 minutes.",
+    ar: "تم قفل الحساب مؤقتًا بعد عدة محاولات. أعد المحاولة خلال 15 دقيقة.",
+  },
+  "authError.phone_taken": {
+    en: "This phone number is already in use.",
+    fr: "Ce numéro de téléphone est déjà utilisé.",
+    ar: "رقم الهاتف هذا مستخدم بالفعل.",
+  },
+  "authError.email_taken": {
+    en: "This email address is already in use.",
+    fr: "Cette adresse e-mail est déjà utilisée.",
+    ar: "هذا البريد الإلكتروني مستخدم بالفعل.",
+  },
+  "authError.username_taken": {
+    en: "This username is already taken.",
+    fr: "Ce nom d'utilisateur est déjà pris.",
+    ar: "اسم المستخدم هذا محجوز بالفعل.",
+  },
+  "authError.invalid_phone": {
+    en: "Invalid phone number.",
+    fr: "Numéro de téléphone invalide.",
+    ar: "رقم الهاتف غير صالح.",
+  },
+  "authError.weak_password": {
+    en: "Password must be at least 8 characters.",
+    fr: "Le mot de passe doit contenir au moins 8 caractères.",
+    ar: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+  },
+  "authError.invalid_pin": {
+    en: "PIN must be exactly 4 digits.",
+    fr: "Le code PIN doit contenir exactement 4 chiffres.",
+    ar: "يجب أن يتكون رمز التعريف الشخصي من 4 أرقام بالضبط.",
+  },
+  "authError.invalid_full_name": {
+    en: "Please enter your full name.",
+    fr: "Veuillez indiquer votre nom complet.",
+    ar: "يرجى إدخال اسمك الكامل.",
+  },
+  "authError.invalid_request": {
+    en: "Incomplete form.",
+    fr: "Formulaire incomplet.",
+    ar: "النموذج غير مكتمل.",
+  },
+  "authError.default": {
+    en: "Something went wrong. Please try again.",
+    fr: "Une erreur est survenue. Veuillez réessayer.",
+    ar: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  },
+
   "login.identifierLabel": {
     en: "Username or phone number",
     fr: "Nom d'utilisateur ou numéro de téléphone",

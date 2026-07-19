@@ -23,39 +23,16 @@ interface AuthState {
   clearError: () => void;
 }
 
+// The server returns a stable machine-readable `code` (e.g. "phone_taken"),
+// never prose — translating it into a language-appropriate message is the
+// caller's job via `authErrorMessage()` in @/lib/auth/error-messages, since
+// this store isn't a component and can't call the useTranslation hook.
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(errorCodeToMessage(body?.code));
+    throw new Error(body?.code || "unknown_error");
   }
   return body as T;
-}
-
-function errorCodeToMessage(code: string | undefined): string {
-  switch (code) {
-    case "invalid_credentials":
-      return "Numéro, nom d'utilisateur ou code PIN incorrect.";
-    case "account_locked":
-      return "Compte temporairement verrouillé suite à plusieurs tentatives. Réessayez dans 15 minutes.";
-    case "phone_taken":
-      return "Ce numéro de téléphone est déjà utilisé.";
-    case "email_taken":
-      return "Cette adresse e-mail est déjà utilisée.";
-    case "username_taken":
-      return "Ce nom d'utilisateur est déjà pris.";
-    case "invalid_phone":
-      return "Numéro de téléphone invalide.";
-    case "weak_password":
-      return "Le mot de passe doit contenir au moins 8 caractères.";
-    case "invalid_pin":
-      return "Le code PIN doit contenir exactement 4 chiffres.";
-    case "invalid_full_name":
-      return "Veuillez indiquer votre nom complet.";
-    case "invalid_request":
-      return "Formulaire incomplet.";
-    default:
-      return "Une erreur est survenue. Veuillez réessayer.";
-  }
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
