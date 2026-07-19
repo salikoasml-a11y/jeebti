@@ -14,8 +14,8 @@ import {
   Fingerprint,
   Lock,
   BellRing,
-  Star,
-  Users,
+  Zap,
+  Headset,
   TrendingUp,
   Globe,
   Mail,
@@ -80,11 +80,11 @@ export default function LandingPage() {
     { icon: ShieldCheck, titleKey: "landing.features.security.title", descKey: "landing.features.security.description" },
   ];
 
-  const stats = [
-    { value: "50k+", labelKey: "landing.stats.activeUsers" },
-    { value: "4.9★", labelKey: "landing.stats.appRating" },
-    { value: "£2.1B+", labelKey: "landing.stats.processedVolume" },
-    { value: "180+", labelKey: "landing.stats.countries" },
+  const trustBadges = [
+    { icon: Lock, labelKey: "landing.trust.encryption" },
+    { icon: ShieldCheck, labelKey: "landing.trust.licensed" },
+    { icon: Zap, labelKey: "landing.trust.instant" },
+    { icon: Headset, labelKey: "landing.trust.support" },
   ];
 
   const securityPoints = [
@@ -251,16 +251,9 @@ export default function LandingPage() {
                   <Link href="/login">{t("landing.hero.login")}</Link>
                 </Button>
               </div>
-              <div className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Star className="size-4 fill-jeebti-brand text-jeebti-brand" />
-                  <span className="font-medium text-foreground">4.9</span> {t("landing.hero.rating")}
-                </div>
-                <span className="text-border">•</span>
-                <div className="flex items-center gap-1">
-                  <Users className="size-4" />
-                  <span className="font-medium text-foreground">50k+</span> {t("landing.hero.users")}
-                </div>
+              <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground">
+                <ShieldCheck className="size-4 text-jeebti-brand" />
+                {t("landing.hero.newBadge")}
               </div>
             </motion.div>
 
@@ -316,13 +309,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Stats strip */}
+        {/* Trust badges */}
         <section className="border-y border-border bg-muted/40">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 sm:px-6 lg:grid-cols-4 lg:px-8">
-            {stats.map((stat, i) => (
-              <FadeIn key={stat.labelKey} delay={i * 0.05} className="text-center">
-                <p className="text-2xl font-bold tracking-tight text-jeebti-brand sm:text-3xl">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{t(stat.labelKey)}</p>
+            {trustBadges.map((badge, i) => (
+              <FadeIn key={badge.labelKey} delay={i * 0.05} className="flex flex-col items-center gap-2 text-center">
+                <span className="flex size-9 items-center justify-center rounded-full bg-jeebti-brand/10 text-jeebti-brand">
+                  <badge.icon className="size-4.5" />
+                </span>
+                <p className="text-sm font-medium text-foreground">{t(badge.labelKey)}</p>
               </FadeIn>
             ))}
           </div>

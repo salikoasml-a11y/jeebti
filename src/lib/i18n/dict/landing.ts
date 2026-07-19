@@ -29,10 +29,11 @@ export const landing: Namespace = {
   "landing.hero.groceryStore": { en: "Grocery Store", fr: "Épicerie", ar: "متجر بقالة" },
   "landing.hero.savingsHoliday": { en: "Savings — Holiday", fr: "Épargne — Vacances", ar: "الادخار — العطلة" },
 
-  "landing.stats.activeUsers": { en: "Active users", fr: "Utilisateurs actifs", ar: "مستخدمون نشطون" },
-  "landing.stats.appRating": { en: "App rating", fr: "Note de l'application", ar: "تقييم التطبيق" },
-  "landing.stats.processedVolume": { en: "Processed volume", fr: "Volume traité", ar: "حجم المعاملات" },
-  "landing.stats.countries": { en: "Countries supported", fr: "Pays pris en charge", ar: "دولة مدعومة" },
+  "landing.trust.encryption": { en: "Bank-grade encryption", fr: "Chiffrement de niveau bancaire", ar: "تشفير بمستوى مصرفي" },
+  "landing.trust.licensed": { en: "Licensed banking infrastructure", fr: "Infrastructure bancaire agréée", ar: "بنية تحتية مصرفية مرخّصة" },
+  "landing.trust.instant": { en: "Instant transfers", fr: "Virements instantanés", ar: "تحويلات فورية" },
+  "landing.trust.support": { en: "Support when you need it", fr: "Assistance quand vous en avez besoin", ar: "دعم متى احتجت إليه" },
+  "landing.hero.newBadge": { en: "New — be one of our first members", fr: "Nouveau — soyez parmi nos premiers membres", ar: "جديد — كن من أوائل أعضائنا" },
 
   "landing.features.heading": { en: "Everything your money needs", fr: "Tout ce dont votre argent a besoin", ar: "كل ما تحتاجه أموالك" },
   "landing.features.subheading": {
@@ -140,9 +141,9 @@ export const landing: Namespace = {
 
   "landing.cta.heading": { en: "Ready to simplify your banking?", fr: "Prêt à simplifier votre banque ?", ar: "هل أنت مستعد لتبسيط تعاملاتك المصرفية؟" },
   "landing.cta.subheading": {
-    en: "Join 50,000+ people who already bank smarter with Jeebti. It takes less than two minutes to sign up.",
-    fr: "Rejoignez plus de 50 000 personnes qui gèrent déjà leur argent plus intelligemment avec Jeebti. L'inscription prend moins de deux minutes.",
-    ar: "انضم إلى أكثر من 50,000 شخص يديرون أموالهم بذكاء مع Jeebti. التسجيل يستغرق أقل من دقيقتين.",
+    en: "Bank smarter with Jeebti — it takes less than two minutes to sign up.",
+    fr: "Gérez votre argent plus intelligemment avec Jeebti — l'inscription prend moins de deux minutes.",
+    ar: "أدر أموالك بذكاء مع Jeebti — يستغرق التسجيل أقل من دقيقتين.",
   },
   "landing.cta.getStartedFree": { en: "Get started free", fr: "Commencer gratuitement", ar: "ابدأ مجانًا" },
   "landing.cta.login": { en: "Log in", fr: "Se connecter", ar: "تسجيل الدخول" },

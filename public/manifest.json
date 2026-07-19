@@ -4,8 +4,8 @@
   "description": "Modern digital banking. Spend, save, and pay — all in one app.",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0e0f1a",
-  "theme_color": "#155dfc",
+  "background_color": "#0a1638",
+  "theme_color": "#16296b",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }

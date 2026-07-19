@@ -23,6 +23,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useBankingStore } from "@/store/banking-store";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { JeebtiMark } from "@/components/jeebti-mark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -88,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
         <div className="flex h-16 items-center gap-2 px-6">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-jeebti-brand text-white font-bold">J</div>
+          <JeebtiMark size={32} />
           <span className="text-lg font-bold tracking-tight">Jeebti</span>
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
@@ -138,7 +139,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-jeebti-brand text-white font-bold">J</div>
+                  <JeebtiMark size={32} />
                   <span className="text-lg font-bold tracking-tight">Jeebti</span>
                 </div>
                 <nav className="space-y-1 px-3 py-4">

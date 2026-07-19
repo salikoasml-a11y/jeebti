@@ -23,6 +23,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Badge } from "@/components/ui/badge";
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { JeebtiMark } from "@/components/jeebti-mark";
 
 const ADMIN_NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -64,9 +65,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
         <div className="flex h-16 items-center gap-2 px-6">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-slate-900 text-white font-bold dark:bg-white dark:text-slate-900">
-            J
-          </div>
+          <JeebtiMark size={32} />
           <div>
             <p className="text-sm font-bold leading-none tracking-tight">Jeebti</p>
             <p className="text-[11px] leading-none text-muted-foreground mt-0.5">Admin Console</p>
@@ -119,6 +118,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <SheetContent side="left" className="w-72 p-0">
                 <SheetTitle className="sr-only">Admin navigation</SheetTitle>
                 <div className="flex h-16 items-center gap-2 border-b border-border px-6">
+                  <JeebtiMark size={28} />
                   <span className="text-lg font-bold tracking-tight">Jeebti Admin</span>
                 </div>
                 <nav className="space-y-1 px-3 py-4">
